@@ -168,6 +168,8 @@ function soundOption(id) { return SOUND_OPTIONS[id] ?? SOUND_OPTIONS.dawn; }
 const $ = selector => document.querySelector(selector);
 const alarmList = $("#alarm-list");
 const alarmCount = $("#alarm-count");
+const greetingTitle = $("#greeting-title");
+const greetingSymbol = $("#greeting-symbol");
 const nextOverview = $(".next-overview");
 const nextAlarmTime = $("#next-alarm-time");
 const nextAlarmLabel = $("#next-alarm-label");
@@ -200,6 +202,10 @@ let alarms = loadAlarms();
 let pendingSnoozes = loadPendingSnoozes();
 let editingID = null;
 let editingWeekdays = new Set([1, 2, 3, 4, 5]);
+let swipeGesture;
+let openSwipeRow;
+let suppressCardClick = false;
+const SWIPE_REVEAL_PX = 82;
 
 function loadAlarms() {
   try {
@@ -249,6 +255,14 @@ function formatDate(date) {
   return new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit" }).format(date);
 }
 
+/** Updates the greeting and its day/night symbol from the device's local hour. */
+function updateGreeting(now = new Date()) {
+  const hour = now.getHours();
+  const isDay = hour >= 5 && hour < 18;
+  greetingTitle.textContent = hour >= 5 && hour < 12 ? "早上好" : hour >= 12 && hour < 18 ? "下午好" : "晚上好";
+  greetingSymbol.dataset.period = isDay ? "day" : "night";
+}
+
 function nextSummary(alarm) {
   if (!alarm.isEnabled) return "已关闭";
   try {
@@ -283,20 +297,27 @@ function updateOverview() {
 
 function render() {
   updateOverview();
+  openSwipeRow = undefined;
+  swipeGesture = undefined;
   if (!alarms.length) {
     alarmList.innerHTML = `<div class="empty-state"><div class="empty-icon">＋</div><p>还没有闹钟</p><small>点击右上角加号，创建你的第一个自定义闹钟</small></div>`;
     return;
   }
   alarmList.innerHTML = alarms.map(alarm => `
-    <article class="alarm-card ${alarm.isEnabled ? "" : "disabled"}" data-id="${escapeHTML(alarm.id)}" tabindex="0">
-      <div class="alarm-card-copy">
-        <p class="alarm-time">${escapeHTML(alarm.time)}</p>
-        <p class="alarm-details">${escapeHTML(alarm.label?.trim() || "闹钟")}</p>
-        <div class="alarm-tags"><span>${escapeHTML(repeatRuleTitle(alarm.repeatRule))}</span><span>♪ ${escapeHTML(soundOption(alarm.sound).title)}</span>${alarm.snoozeEnabled ? `<span>稍后 ${alarm.snoozeMinutes ?? 5} 分钟</span>` : ""}</div>
-      </div>
-      <label class="switch" aria-label="启用 ${escapeHTML(alarm.label || "闹钟")}"><input data-action="toggle" type="checkbox" ${alarm.isEnabled ? "checked" : ""}><span></span></label>
-      <div class="alarm-next">${escapeHTML(nextSummary(alarm))}</div>
-    </article>`).join("");
+    <div class="alarm-swipe-row" data-id="${escapeHTML(alarm.id)}">
+      <button class="swipe-delete" data-action="swipe-delete" type="button" aria-label="删除 ${escapeHTML(alarm.label || "闹钟")}" aria-hidden="true" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg>
+      </button>
+      <article class="alarm-card ${alarm.isEnabled ? "" : "disabled"}" data-id="${escapeHTML(alarm.id)}" tabindex="0">
+        <div class="alarm-card-copy">
+          <p class="alarm-time">${escapeHTML(alarm.time)}</p>
+          <p class="alarm-details">${escapeHTML(alarm.label?.trim() || "闹钟")}</p>
+          <div class="alarm-tags"><span>${escapeHTML(repeatRuleTitle(alarm.repeatRule))}</span><span>♪ ${escapeHTML(soundOption(alarm.sound).title)}</span>${alarm.snoozeEnabled ? `<span>稍后 ${alarm.snoozeMinutes ?? 5} 分钟</span>` : ""}</div>
+        </div>
+        <label class="switch" aria-label="启用 ${escapeHTML(alarm.label || "闹钟")}"><input data-action="toggle" type="checkbox" ${alarm.isEnabled ? "checked" : ""}><span></span></label>
+        <div class="alarm-next">${escapeHTML(nextSummary(alarm))}</div>
+      </article>
+    </div>`).join("");
 }
 
 function ruleFromForm() {
@@ -361,9 +382,78 @@ function closeEditor() { dialog.close(); editingID = null; }
 addButton.addEventListener("click", () => openEditor());
 cancelButton.addEventListener("click", closeEditor);
 
-alarmList.addEventListener("click", event => {
+/** Removes an alarm and any pending snooze that belongs to it. */
+function removeAlarm(alarmID) {
+  alarms = alarms.filter(alarm => alarm.id !== alarmID);
+  pendingSnoozes = pendingSnoozes.filter(item => item.alarm.id !== alarmID);
+  savePendingSnoozes();
+  saveAlarms();
+  render();
+}
+
+function setSwipeRowOpen(row, shouldOpen) {
+  if (!row) return;
+  if (shouldOpen && openSwipeRow && openSwipeRow !== row) setSwipeRowOpen(openSwipeRow, false);
+  row.classList.toggle("swiped", shouldOpen);
+  row.style.setProperty("--swipe-x", shouldOpen ? `${SWIPE_REVEAL_PX}px` : "0px");
+  const deleteControl = row.querySelector(".swipe-delete");
+  deleteControl.tabIndex = shouldOpen ? 0 : -1;
+  deleteControl.setAttribute("aria-hidden", String(!shouldOpen));
+  if (shouldOpen) openSwipeRow = row; else if (openSwipeRow === row) openSwipeRow = undefined;
+}
+
+alarmList.addEventListener("pointerdown", event => {
   const card = event.target.closest(".alarm-card");
-  if (!card) return;
+  if (!card || event.pointerType === "mouse" || event.target.closest(".switch, button, a, input, select")) return;
+  const row = card.closest(".alarm-swipe-row");
+  if (openSwipeRow && openSwipeRow !== row) setSwipeRowOpen(openSwipeRow, false);
+  swipeGesture = {
+    pointerID: event.pointerId, row, startX: event.clientX, startY: event.clientY,
+    baseX: row.classList.contains("swiped") ? SWIPE_REVEAL_PX : 0,
+    currentX: row.classList.contains("swiped") ? SWIPE_REVEAL_PX : 0,
+    horizontal: false, cancelled: false
+  };
+});
+
+alarmList.addEventListener("pointermove", event => {
+  if (!swipeGesture || event.pointerId !== swipeGesture.pointerID || swipeGesture.cancelled) return;
+  const deltaX = event.clientX - swipeGesture.startX;
+  const deltaY = event.clientY - swipeGesture.startY;
+  if (!swipeGesture.horizontal) {
+    if (Math.abs(deltaX) < 7 && Math.abs(deltaY) < 7) return;
+    if (Math.abs(deltaY) >= Math.abs(deltaX)) { swipeGesture.cancelled = true; return; }
+    swipeGesture.horizontal = true;
+    swipeGesture.row.classList.add("swiping");
+  }
+  event.preventDefault();
+  swipeGesture.currentX = Math.min(SWIPE_REVEAL_PX, Math.max(0, swipeGesture.baseX + deltaX));
+  swipeGesture.row.style.setProperty("--swipe-x", `${swipeGesture.currentX}px`);
+}, { passive: false });
+
+function finishSwipe(event) {
+  if (!swipeGesture || event.pointerId !== swipeGesture.pointerID) return;
+  if (swipeGesture.horizontal) {
+    setSwipeRowOpen(swipeGesture.row, swipeGesture.currentX >= SWIPE_REVEAL_PX * .55);
+    suppressCardClick = true;
+    setTimeout(() => { suppressCardClick = false; }, 0);
+  } else if (!swipeGesture.cancelled) {
+    setSwipeRowOpen(swipeGesture.row, swipeGesture.baseX > 0);
+  }
+  swipeGesture = undefined;
+}
+alarmList.addEventListener("pointerup", finishSwipe);
+alarmList.addEventListener("pointercancel", finishSwipe);
+
+alarmList.addEventListener("click", event => {
+  const deleteControl = event.target.closest('[data-action="swipe-delete"]');
+  if (deleteControl) {
+    removeAlarm(deleteControl.closest(".alarm-swipe-row").dataset.id);
+    return;
+  }
+  const card = event.target.closest(".alarm-card");
+  if (!card || suppressCardClick) return;
+  const row = card.closest(".alarm-swipe-row");
+  if (row.classList.contains("swiped")) { setSwipeRowOpen(row, false); return; }
   const alarm = alarms.find(item => item.id === card.dataset.id);
   if (!alarm) return;
   if (event.target.matches('[data-action="toggle"]')) {
@@ -372,6 +462,10 @@ alarmList.addEventListener("click", event => {
     return;
   }
   openEditor(alarm);
+});
+
+document.addEventListener("click", event => {
+  if (openSwipeRow && !event.target.closest(".alarm-swipe-row")) setSwipeRowOpen(openSwipeRow, false);
 });
 
 alarmList.addEventListener("keydown", event => {
@@ -405,14 +499,12 @@ form.addEventListener("submit", event => {
 
 deleteButton.addEventListener("click", () => {
   if (!editingID || !window.confirm("确定删除这个闹钟吗？")) return;
-  alarms = alarms.filter(alarm => alarm.id !== editingID);
-  pendingSnoozes = pendingSnoozes.filter(item => item.alarm.id !== editingID);
-  savePendingSnoozes();
-  saveAlarms(); render();
-  armPageReminders(false).catch(console.error);
+  removeAlarm(editingID);
   closeEditor();
 });
 
+updateGreeting();
+setInterval(updateGreeting, 60_000);
 render();
 
 if ("serviceWorker" in navigator) {
@@ -506,15 +598,15 @@ async function armPageReminders(requestNotifications) {
   remindersEnabled = true;
   enableRemindersButton.textContent = "已启用";
   enableRemindersButton.dataset.enabled = "true";
-  reminderStatus.textContent = "页面内提醒已启动（请保持页面打开）";
+  reminderStatus.textContent = "响铃已启用";
   await ensureAudio();
   let notificationsGranted = "Notification" in window && Notification.permission === "granted";
   if (requestNotifications && "Notification" in window && Notification.permission === "default") {
     notificationsGranted = await Notification.requestPermission() === "granted";
   }
   reminderStatus.textContent = notificationsGranted
-    ? "声音和通知已启用（刷新页面后需再次启用）"
-    : "页面内声音已启用（刷新页面后需再次启用）";
+    ? "响铃和通知已启用"
+    : "响铃已启用";
 }
 
 async function enableReminders() {
@@ -602,7 +694,7 @@ setInterval(renderSnoozeSummary, 1_000);
 setInterval(checkDueAlarms, 2_000);
 
 document.addEventListener("visibilitychange", () => {
-  if (remindersEnabled && document.hidden) reminderStatus.textContent = "页面进入后台，提醒可能延迟；请勿关闭页面或让电脑休眠";
+  if (remindersEnabled && document.hidden) reminderStatus.textContent = "页面在后台，响铃可能延迟";
 });
 
 installButton.addEventListener("click", () => {

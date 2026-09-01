@@ -97,6 +97,11 @@ def main():
     assert cdp.evaluate("document.querySelector('.next-overview').hidden === true")
     assert cdp.evaluate("document.querySelector('#next-alarm-time').textContent === ''")
     assert cdp.evaluate("document.querySelector('.overview-illustration svg') !== null")
+    assert cdp.evaluate("document.querySelector('.notice') === null")
+    assert cdp.evaluate("document.querySelector('.brand-name').textContent === '时序'")
+    assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<12?'早上好':hour>=12&&hour<18?'下午好':'晚上好'; return document.querySelector('#greeting-title').textContent===expected; })()")
+    assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<18?'day':'night'; return document.querySelector('#greeting-symbol').dataset.period===expected; })()")
+    assert cdp.evaluate("document.querySelector('.reminder-card strong').textContent === '响铃设置'")
     assert cdp.evaluate("document.querySelector('meta[name=viewport]').content.includes('user-scalable=no')")
     initial_scale = cdp.evaluate("visualViewport.scale")
     for _ in range(2):
@@ -117,6 +122,41 @@ def main():
     assert cdp.evaluate("document.querySelector('.next-overview').hidden === false")
     assert cdp.evaluate("document.querySelector('.alarm-card').textContent.includes('每隔 3 天')")
     assert cdp.evaluate("document.querySelector('#enable-reminders').dataset.enabled === 'true'")
+
+    fill_alarm(cdp, "滑动删除", "daily")
+    assert cdp.evaluate("document.querySelectorAll('.alarm-swipe-row').length === 2")
+    cdp.evaluate("""
+      (() => {
+        const row=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除'));
+        const card=row.querySelector('.alarm-card');
+        const fire=(type,x,y)=>card.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:41,pointerType:'touch',clientX:x,clientY:y}));
+        fire('pointerdown',20,20); fire('pointermove',28,90); fire('pointerup',28,90);
+      })()
+    """)
+    assert cdp.evaluate("![...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).classList.contains('swiped')")
+    cdp.evaluate("""
+      (() => {
+        const row=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除'));
+        const card=row.querySelector('.alarm-card');
+        const fire=(type,x)=>card.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:42,pointerType:'touch',clientX:x,clientY:20}));
+        fire('pointerdown',20); fire('pointermove',42); fire('pointerup',42);
+      })()
+    """)
+    assert cdp.evaluate("![...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).classList.contains('swiped')")
+    cdp.evaluate("""
+      (() => {
+        const row=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除'));
+        const card=row.querySelector('.alarm-card');
+        const fire=(type,x)=>card.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:43,pointerType:'touch',clientX:x,clientY:20}));
+        fire('pointerdown',20); fire('pointermove',92); fire('pointerup',92);
+      })()
+    """)
+    wait_for(cdp, "[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).classList.contains('swiped')")
+    assert cdp.evaluate("(() => { const button=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).querySelector('.swipe-delete'); return button.tabIndex===0 && button.getAttribute('aria-hidden')==='false'; })()")
+    cdp.evaluate("window.__confirmCalled=false; window.confirm=()=>{window.__confirmCalled=true;return false}; [...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).querySelector('.swipe-delete').click()")
+    wait_for(cdp, "![...document.querySelectorAll('.alarm-details')].some(item=>item.textContent.includes('滑动删除'))")
+    assert cdp.evaluate("window.__confirmCalled === false")
+    assert cdp.evaluate("JSON.parse(localStorage.getItem('personalized-clock.alarms.v1')).length === 1")
     cdp.evaluate("""
       (() => {
         document.querySelector('.alarm-card').click();
