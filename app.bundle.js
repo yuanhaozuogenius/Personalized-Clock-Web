@@ -282,7 +282,9 @@ alarmList.addEventListener("click", event => {
   const alarm = alarms.find(item => item.id === card.dataset.id);
   if (!alarm) return;
   if (event.target.matches('[data-action="toggle"]')) {
-    alarm.isEnabled = event.target.checked; saveAlarms(); render(); return;
+    alarm.isEnabled = event.target.checked; saveAlarms(); render();
+    if (alarm.isEnabled) armPageReminders(false).catch(console.error);
+    return;
   }
   openEditor(alarm);
 });
@@ -310,13 +312,17 @@ form.addEventListener("submit", event => {
   const updated = alarmFromForm();
   const index = alarms.findIndex(alarm => alarm.id === editingID);
   if (index >= 0) alarms[index] = updated; else alarms.push(updated);
-  saveAlarms(); render(); closeEditor();
+  saveAlarms(); render();
+  armPageReminders(false).catch(console.error);
+  closeEditor();
 });
 
 deleteButton.addEventListener("click", () => {
   if (!editingID || !window.confirm("确定删除这个闹钟吗？")) return;
   alarms = alarms.filter(alarm => alarm.id !== editingID);
-  saveAlarms(); render(); closeEditor();
+  saveAlarms(); render();
+  armPageReminders(false).catch(console.error);
+  closeEditor();
 });
 
 render();
@@ -397,14 +403,25 @@ function stopRinging() {
   ringingOverlay.hidden = true;
 }
 
+/** Arms local audio from a user gesture; browsers require this again after a page reload. */
+async function armPageReminders(requestNotifications) {
+  remindersEnabled = true;
+  enableRemindersButton.textContent = "已启用";
+  enableRemindersButton.dataset.enabled = "true";
+  reminderStatus.textContent = "页面内提醒已启动，正在确认声音权限…";
+  await ensureAudio();
+  let notificationsGranted = "Notification" in window && Notification.permission === "granted";
+  if (requestNotifications && "Notification" in window && Notification.permission === "default") {
+    notificationsGranted = await Notification.requestPermission() === "granted";
+  }
+  reminderStatus.textContent = notificationsGranted
+    ? "声音和通知已启用（刷新页面后需再次启用）"
+    : "页面内声音已启用（刷新页面后需再次启用）";
+}
+
 async function enableReminders() {
   try {
-    await ensureAudio();
-    let permission = "不支持系统通知";
-    if ("Notification" in window) permission = await Notification.requestPermission();
-    remindersEnabled = true;
-    reminderStatus.textContent = permission === "granted" ? "声音和通知已启用（页面需保持打开）" : "声音已启用（页面需保持打开）";
-    enableRemindersButton.textContent = "已启用";
+    await armPageReminders(true);
   } catch (error) {
     reminderStatus.textContent = error.message;
   }
@@ -412,7 +429,7 @@ async function enableReminders() {
 
 enableRemindersButton.addEventListener("click", enableReminders);
 testReminderButton.addEventListener("click", async () => {
-  await ensureAudio().catch(() => {});
+  await armPageReminders(false).catch(() => {});
   triggerRinging({ id: "test", time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), label: "测试闹钟", repeatRule: { type: "once" }, snoozeMinutes: 1 });
 });
 stopAlarmButton.addEventListener("click", stopRinging);
@@ -440,6 +457,10 @@ setInterval(() => {
     } catch { /* Invalid alarms are already shown in the editor. */ }
   }
 }, 10_000);
+
+document.addEventListener("visibilitychange", () => {
+  if (remindersEnabled && document.hidden) reminderStatus.textContent = "页面进入后台，提醒可能延迟；请勿关闭页面或让电脑休眠";
+});
 
 window.addEventListener("beforeinstallprompt", event => {
   event.preventDefault();

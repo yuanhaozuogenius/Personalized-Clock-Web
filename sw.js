@@ -1,4 +1,4 @@
-const CACHE_NAME = "personalized-clock-v3";
+const CACHE_NAME = "personalized-clock-v4";
 const APP_FILES = ["./", "./index.html", "./styles.css", "./app.bundle.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", event => {
