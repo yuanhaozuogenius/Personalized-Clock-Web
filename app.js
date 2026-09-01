@@ -300,7 +300,9 @@ function finishSwipe(event) {
   if (swipeGesture.horizontal) {
     setSwipeRowOpen(swipeGesture.row, swipeGesture.currentX >= SWIPE_REVEAL_PX * .55);
     suppressCardClick = true;
-    setTimeout(() => { suppressCardClick = false; }, 0);
+    // iOS dispatches a delayed synthetic click after touchend; keep the guard
+    // long enough that the revealed delete action does not immediately close.
+    setTimeout(() => { suppressCardClick = false; }, 400);
   } else if (!swipeGesture.cancelled) {
     setSwipeRowOpen(swipeGesture.row, swipeGesture.baseX > 0);
   }
@@ -379,7 +381,6 @@ if ("serviceWorker" in navigator) {
 const reminderStatus = $("#reminder-status");
 const enableRemindersButton = $("#enable-reminders");
 const testReminderButton = $("#test-reminder");
-const installButton = $("#install-app");
 const shareButton = $("#share-app");
 const ringingOverlay = $("#ringing-overlay");
 const ringingTime = $("#ringing-time");
@@ -474,10 +475,22 @@ async function armPageReminders(requestNotifications) {
     : "响铃已启用";
 }
 
+function disableReminders() {
+  remindersEnabled = false;
+  enableRemindersButton.textContent = "启用提醒";
+  enableRemindersButton.dataset.enabled = "false";
+  reminderStatus.textContent = "提醒未启用";
+}
+
 async function enableReminders() {
+  if (remindersEnabled) {
+    disableReminders();
+    return;
+  }
   try {
     await armPageReminders(true);
   } catch (error) {
+    disableReminders();
     reminderStatus.textContent = error.message;
   }
 }
@@ -560,10 +573,6 @@ setInterval(checkDueAlarms, 2_000);
 
 document.addEventListener("visibilitychange", () => {
   if (remindersEnabled && document.hidden) reminderStatus.textContent = "页面在后台，响铃可能延迟";
-});
-
-installButton.addEventListener("click", () => {
-  location.href = "help.html#add-to-home";
 });
 
 shareButton.addEventListener("click", async () => {

@@ -4,13 +4,14 @@
 
 - 在线地址：https://yuanhaozuogenius.github.io/Personalized-Clock-Web/
 - iPhone 用户说明：[USER_GUIDE.md](USER_GUIDE.md)
+- 交互迭代与发布准则：[UX_AGENT.md](UX_AGENT.md)
 
 ## 主要能力
 
 - 仅一次、每天、工作日、周末、指定星期
 - “每隔 X 天”和“上 X 休 Y”自定义周期
 - 本地闹钟增删改、向右滑动删除、开关和下一次日期计算
-- 默认 5 分钟的可配置、持久化稍后提醒
+- 可开关的页面提醒、默认 5 分钟的可配置持久化稍后提醒
 - 晨光、清泉、微风、经典四套原创 Web Audio 铃声
 - 添加到 iPhone 主屏幕、离线缓存、分享和页面内通知
 - 随本地时间变化的问候、明暗主题及手机尺寸界面
@@ -39,7 +40,8 @@ node --check app.bundle.js
 - `app.js`：DOM、本地存储、声音、提醒和 PWA 交互
 - `build.mjs`：合并源码生成 `app.bundle.js`
 - `sw.js`：离线文件缓存
-- `tests/ui_smoke.py`：Chrome 手机尺寸交互测试
+- `tests/ui_smoke.py`：Chrome 手机尺寸与真实触摸交互测试
+- `UX_AGENT.md`：V1–V11 交互经验、设计准则和发布检查表
 
 不要直接编辑 `app.bundle.js`。修改源码后运行 `npm run build` 并提交生成结果。
 

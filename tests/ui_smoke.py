@@ -3,6 +3,7 @@ import base64
 import json
 import time
 import urllib.request
+from pathlib import Path
 
 import websocket
 
@@ -55,6 +56,33 @@ def wait_for(cdp, expression, timeout=8):
     raise TimeoutError(expression)
 
 
+def touch_drag(cdp, label, delta_x, delta_y):
+    """Dispatches browser-level touch input so gesture behavior matches a phone."""
+    point = cdp.evaluate(f"""
+      (() => {{
+        const row = [...document.querySelectorAll('.alarm-swipe-row')]
+          .find(item => item.textContent.includes({json.dumps(label)}));
+        const rect = row.querySelector('.alarm-card').getBoundingClientRect();
+        return {{x: rect.left + 28, y: rect.top + rect.height / 2}};
+      }})()
+    """)
+    cdp.call("Input.dispatchTouchEvent", {
+        "type": "touchStart",
+        "touchPoints": [{"x": point["x"], "y": point["y"]}]
+    })
+    for fraction in (0.35, 0.7, 1):
+        cdp.call("Input.dispatchTouchEvent", {
+            "type": "touchMove",
+            "touchPoints": [{
+                "x": point["x"] + delta_x * fraction,
+                "y": point["y"] + delta_y * fraction
+            }]
+        })
+    cdp.call("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+    # Include the delayed click window used by iOS after a touch gesture.
+    time.sleep(0.5)
+
+
 def fill_alarm(cdp, label, repeat_type, extra=""):
     cdp.evaluate(f"""
       (() => {{
@@ -98,7 +126,8 @@ def main():
     assert cdp.evaluate("document.querySelector('#next-alarm-time').textContent === ''")
     assert cdp.evaluate("document.querySelector('.overview-illustration svg') !== null")
     assert cdp.evaluate("document.querySelector('.notice') === null")
-    assert cdp.evaluate("document.querySelector('.brand-name').textContent === '时序'")
+    assert cdp.evaluate("document.querySelector('.brand-lockup') === null")
+    assert cdp.evaluate("document.querySelector('#install-app') === null")
     assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<12?'早上好':hour>=12&&hour<18?'下午好':'晚上好'; return document.querySelector('#greeting-title').textContent===expected; })()")
     assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<18?'day':'night'; return document.querySelector('#greeting-symbol').dataset.period===expected; })()")
     assert cdp.evaluate("document.querySelector('.reminder-card strong').textContent === '响铃设置'")
@@ -122,36 +151,24 @@ def main():
     assert cdp.evaluate("document.querySelector('.next-overview').hidden === false")
     assert cdp.evaluate("document.querySelector('.alarm-card').textContent.includes('每隔 3 天')")
     assert cdp.evaluate("document.querySelector('#enable-reminders').dataset.enabled === 'true'")
+    cdp.evaluate("document.querySelector('#enable-reminders').click()")
+    wait_for(cdp, "document.querySelector('#enable-reminders').dataset.enabled === 'false' && document.querySelector('#enable-reminders').textContent === '启用提醒'")
+    assert cdp.evaluate("document.querySelector('#reminder-status').textContent === '提醒未启用'")
+    cdp.evaluate("document.querySelector('#enable-reminders').click()")
+    wait_for(cdp, "document.querySelector('#enable-reminders').dataset.enabled === 'true' && document.querySelector('#enable-reminders').textContent === '已启用'")
 
     fill_alarm(cdp, "滑动删除", "daily")
     assert cdp.evaluate("document.querySelectorAll('.alarm-swipe-row').length === 2")
-    cdp.evaluate("""
-      (() => {
-        const row=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除'));
-        const card=row.querySelector('.alarm-card');
-        const fire=(type,x,y)=>card.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:41,pointerType:'touch',clientX:x,clientY:y}));
-        fire('pointerdown',20,20); fire('pointermove',28,90); fire('pointerup',28,90);
-      })()
-    """)
+    touch_drag(cdp, "滑动删除", 8, 70)
     assert cdp.evaluate("![...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).classList.contains('swiped')")
-    cdp.evaluate("""
-      (() => {
-        const row=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除'));
-        const card=row.querySelector('.alarm-card');
-        const fire=(type,x)=>card.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:42,pointerType:'touch',clientX:x,clientY:20}));
-        fire('pointerdown',20); fire('pointermove',42); fire('pointerup',42);
-      })()
-    """)
+    touch_drag(cdp, "滑动删除", 22, 0)
     assert cdp.evaluate("![...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).classList.contains('swiped')")
-    cdp.evaluate("""
-      (() => {
-        const row=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除'));
-        const card=row.querySelector('.alarm-card');
-        const fire=(type,x)=>card.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:43,pointerType:'touch',clientX:x,clientY:20}));
-        fire('pointerdown',20); fire('pointermove',92); fire('pointerup',92);
-      })()
-    """)
-    wait_for(cdp, "[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).classList.contains('swiped')")
+    touch_drag(cdp, "滑动删除", 78, 0)
+    assert cdp.evaluate("[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).classList.contains('swiped')")
+    swipe_screenshot = cdp.call("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": False})
+    screenshot_path = Path(args.screenshot)
+    swipe_path = screenshot_path.with_name(f"{screenshot_path.stem}-swipe{screenshot_path.suffix}")
+    swipe_path.write_bytes(base64.b64decode(swipe_screenshot["data"]))
     assert cdp.evaluate("(() => { const button=[...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).querySelector('.swipe-delete'); return button.tabIndex===0 && button.getAttribute('aria-hidden')==='false'; })()")
     cdp.evaluate("window.__confirmCalled=false; window.confirm=()=>{window.__confirmCalled=true;return false}; [...document.querySelectorAll('.alarm-swipe-row')].find(item=>item.textContent.includes('滑动删除')).querySelector('.swipe-delete').click()")
     wait_for(cdp, "![...document.querySelectorAll('.alarm-details')].some(item=>item.textContent.includes('滑动删除'))")
@@ -234,8 +251,8 @@ def main():
     cdp.evaluate("Object.defineProperty(navigator, 'share', {configurable:true, value:async data => { window.__sharedData=data; }}); document.querySelector('#share-app').click()")
     wait_for(cdp, "window.__sharedData?.url")
     assert cdp.evaluate("new URL(window.__sharedData.url).search === ''")
-    cdp.evaluate("document.querySelector('#install-app').click()")
-    wait_for(cdp, "document.readyState === 'complete' && location.hash === '#add-to-home' && document.querySelector('h1')?.textContent.includes('使用说明')")
+    cdp.evaluate("document.querySelector('.action-row a[href=\"help.html\"]').click()")
+    wait_for(cdp, "document.readyState === 'complete' && location.pathname.endsWith('/help.html') && document.querySelector('h1')?.textContent.includes('使用说明')")
     assert cdp.evaluate("document.body.textContent.includes('添加到主屏幕')")
     assert cdp.evaluate("document.body.textContent.includes('iPhone 自带“时钟”')")
     assert cdp.evaluate("document.querySelector('a[href=\"index.html\"]') !== null")
