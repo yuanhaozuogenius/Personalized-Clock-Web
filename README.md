@@ -6,7 +6,7 @@ https://yuanhaozuogenius.github.io/Personalized-Clock-Web/
 
 ## 主要能力
 
-- 与 iOS 版一致的全部周期规则
+- 完整的常规与自定义周期规则
 - 本地闹钟增删改、开关和下一次日期计算
 - 默认 5 分钟的可配置、持久化稍后提醒
 - 晨光、清泉、微风、经典四套原创 Web Audio 铃声
