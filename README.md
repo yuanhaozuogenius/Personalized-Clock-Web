@@ -10,7 +10,7 @@ https://yuanhaozuogenius.github.io/Personalized-Clock-Web/
 - 本地闹钟增删改、开关和下一次日期计算
 - 默认 5 分钟的可配置、持久化稍后提醒
 - 晨光、清泉、微风、经典四套原创 Web Audio 铃声
-- PWA 安装、离线缓存、分享和页面内通知
+- 添加到主屏幕、离线缓存、分享和页面内通知
 - 明暗主题及手机尺寸界面
 
 ## 本地运行
@@ -19,7 +19,7 @@ https://yuanhaozuogenius.github.io/Personalized-Clock-Web/
 python -m http.server 4173 --directory web
 ```
 
-访问 `http://127.0.0.1:4173/`。直接双击 `index.html` 可以体验主要交互，但 Service Worker、安装和通知需要 HTTP/HTTPS。
+访问 `http://127.0.0.1:4173/`。直接双击 `index.html` 可以体验主要交互，但 Service Worker、添加到主屏幕和通知需要 HTTP/HTTPS。
 
 ## 开发与测试
 

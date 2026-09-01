@@ -433,7 +433,6 @@ let audioContext;
 let soundTimer;
 let activeRingingAlarm;
 let remindersEnabled = false;
-let deferredInstallPrompt;
 const firedOccurrences = new Set();
 
 function ensureAudio() {
@@ -602,27 +601,18 @@ document.addEventListener("visibilitychange", () => {
   if (remindersEnabled && document.hidden) reminderStatus.textContent = "页面进入后台，提醒可能延迟；请勿关闭页面或让电脑休眠";
 });
 
-window.addEventListener("beforeinstallprompt", event => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-});
-
-installButton.addEventListener("click", async () => {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = undefined;
-    return;
-  }
-  window.alert("在 iPhone Safari 中点击分享按钮，再选择“添加到主屏幕”。");
+installButton.addEventListener("click", () => {
+  location.href = "help.html#add-to-home";
 });
 
 shareButton.addEventListener("click", async () => {
-  const shareData = { title: "个性闹钟", text: "试试支持自定义周期的个性闹钟", url: location.href };
+  // Share the stable app address without cache-busting query parameters.
+  const appUrl = new URL("./", location.href).href;
+  const shareData = { title: "个性闹钟", text: "试试支持自定义周期的个性闹钟", url: appUrl };
   if (navigator.share) {
     await navigator.share(shareData).catch(() => {});
   } else {
-    await navigator.clipboard.writeText(location.href);
+    await navigator.clipboard.writeText(appUrl);
     shareButton.textContent = "链接已复制";
     setTimeout(() => { shareButton.textContent = "分享"; }, 1600);
   }
