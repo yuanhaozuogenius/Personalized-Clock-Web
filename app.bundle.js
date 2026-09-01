@@ -395,7 +395,7 @@ function setSwipeRowOpen(row, shouldOpen) {
   if (!row) return;
   if (shouldOpen && openSwipeRow && openSwipeRow !== row) setSwipeRowOpen(openSwipeRow, false);
   row.classList.toggle("swiped", shouldOpen);
-  row.style.setProperty("--swipe-x", shouldOpen ? `${SWIPE_REVEAL_PX}px` : "0px");
+  row.style.setProperty("--swipe-x", shouldOpen ? `-${SWIPE_REVEAL_PX}px` : "0px");
   const deleteControl = row.querySelector(".swipe-delete");
   deleteControl.tabIndex = shouldOpen ? 0 : -1;
   deleteControl.setAttribute("aria-hidden", String(!shouldOpen));
@@ -409,8 +409,8 @@ alarmList.addEventListener("pointerdown", event => {
   if (openSwipeRow && openSwipeRow !== row) setSwipeRowOpen(openSwipeRow, false);
   swipeGesture = {
     pointerID: event.pointerId, row, startX: event.clientX, startY: event.clientY,
-    baseX: row.classList.contains("swiped") ? SWIPE_REVEAL_PX : 0,
-    currentX: row.classList.contains("swiped") ? SWIPE_REVEAL_PX : 0,
+    baseX: row.classList.contains("swiped") ? -SWIPE_REVEAL_PX : 0,
+    currentX: row.classList.contains("swiped") ? -SWIPE_REVEAL_PX : 0,
     horizontal: false, cancelled: false
   };
 });
@@ -426,14 +426,14 @@ alarmList.addEventListener("pointermove", event => {
     swipeGesture.row.classList.add("swiping");
   }
   event.preventDefault();
-  swipeGesture.currentX = Math.min(SWIPE_REVEAL_PX, Math.max(0, swipeGesture.baseX + deltaX));
+  swipeGesture.currentX = Math.max(-SWIPE_REVEAL_PX, Math.min(0, swipeGesture.baseX + deltaX));
   swipeGesture.row.style.setProperty("--swipe-x", `${swipeGesture.currentX}px`);
 }, { passive: false });
 
 function finishSwipe(event) {
   if (!swipeGesture || event.pointerId !== swipeGesture.pointerID) return;
   if (swipeGesture.horizontal) {
-    setSwipeRowOpen(swipeGesture.row, swipeGesture.currentX >= SWIPE_REVEAL_PX * .55);
+    setSwipeRowOpen(swipeGesture.row, swipeGesture.currentX <= -SWIPE_REVEAL_PX * .55);
     suppressCardClick = true;
     // iOS dispatches a delayed synthetic click after touchend; keep the guard
     // long enough that the revealed delete action does not immediately close.

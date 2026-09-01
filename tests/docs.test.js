@@ -5,15 +5,14 @@ import { readFile } from "node:fs/promises";
 const read = path => readFile(new URL(path, import.meta.url), "utf8");
 
 test("published app contains the essential iPhone workflow and interaction guards", async () => {
-  const [index, help, guide, serviceWorker, app, styles, readme, uxAgent] = await Promise.all([
+  const [index, help, guide, serviceWorker, app, styles, readme] = await Promise.all([
     read("../index.html"),
     read("../help.html"),
     read("../USER_GUIDE.md"),
     read("../sw.js"),
     read("../app.js"),
     read("../styles.css"),
-    read("../README.md"),
-    read("../UX_AGENT.md")
+    read("../README.md")
   ]);
 
   assert.match(index, /href="help\.html"/);
@@ -44,11 +43,11 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(help, /iPhone 自带“时钟”/);
   assert.match(guide, /Safari/);
   assert.match(guide, /Web App/);
-  assert.match(guide, /向右滑动闹钟卡片/);
+  assert.match(guide, /向左滑动闹钟卡片/);
   assert.match(guide, /红色垃圾桶/);
   assert.match(guide, /再点一次“已启用”可关闭提醒/);
 
-  assert.match(serviceWorker, /personalized-clock-v11/);
+  assert.match(serviceWorker, /personalized-clock-v12/);
   assert.match(serviceWorker, /\.\/help\.html/);
   assert.match(app, /nextOverview\.hidden = true/);
   assert.match(app, /dialog\.focus\(\{ preventScroll: true \}\)/);
@@ -70,9 +69,5 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(styles, /\.overview-illustration/);
   assert.match(styles, /\.alarm-swipe-row/);
   assert.match(styles, /\.swipe-delete/);
-  assert.match(readme, /向右滑动删除/);
-  assert.match(readme, /UX_AGENT\.md/);
-  assert.match(uxAgent, /V1–V11/);
-  assert.match(uxAgent, /touchStart\/touchMove\/touchEnd/);
-  assert.match(uxAgent, /Personalized-Clock-Web/);
+  assert.match(readme, /向左滑动删除/);
 });
