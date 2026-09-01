@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#f2f2f7">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
   <main class="app-shell">
@@ -18,9 +18,19 @@
       <div><p class="eyebrow">PERSONAL CLOCK</p><h1>早上好</h1></div>
       <div class="top-actions"><a class="help-button" href="help.html" aria-label="使用说明">?</a><button id="add-alarm" class="icon-button" type="button" aria-label="添加闹钟">＋</button></div>
     </header>
-    <section class="next-overview" aria-label="下一次响铃">
-      <div><span>下一次响铃</span><strong id="next-alarm-time">--:--</strong><p id="next-alarm-label">创建一个闹钟开始使用</p></div>
-      <div class="overview-icon" aria-hidden="true">◷</div>
+    <section class="next-overview" aria-label="下一次响铃" hidden>
+      <div><span>下一次响铃</span><strong id="next-alarm-time"></strong><p id="next-alarm-label"></p></div>
+      <div class="overview-illustration" aria-hidden="true">
+        <svg viewBox="0 0 100 100" role="img">
+          <defs><linearGradient id="alarm-face" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffbd4a"/><stop offset="1" stop-color="#ff8500"/></linearGradient></defs>
+          <path class="alarm-bells" d="M20 31 12 21c7-7 15-9 23-3M80 31l8-10c-7-7-15-9-23-3"/>
+          <circle class="alarm-face" cx="50" cy="55" r="31"/>
+          <path class="alarm-ticks" d="M50 29v4M76 55h-4M50 81v-4M24 55h4"/>
+          <path class="alarm-hands" d="M50 36v20l14 8"/>
+          <circle class="alarm-pin" cx="50" cy="55" r="3.5"/>
+          <path class="alarm-feet" d="m31 81-7 9m45-9 7 9"/>
+        </svg>
+      </div>
     </section>
     <section class="notice" aria-label="Web 版本说明">
       <strong>可分享体验版</strong>
@@ -40,7 +50,7 @@
     <section id="alarm-list" class="alarm-list" aria-live="polite"></section>
   </main>
 
-  <dialog id="alarm-editor" class="editor-dialog">
+  <dialog id="alarm-editor" class="editor-dialog" tabindex="-1">
     <form id="alarm-form" class="editor-form">
       <header class="editor-header">
         <button id="cancel-edit" class="text-button" type="button">取消</button>
@@ -88,6 +98,6 @@
       <div class="ringing-actions"><button id="snooze-alarm" type="button">稍后提醒</button><button id="stop-alarm" type="button">停止</button></div>
     </div>
   </section>
-  <script defer src="app.bundle.js?v=8"></script>
+  <script defer src="app.bundle.js?v=9"></script>
 </body>
 </html>

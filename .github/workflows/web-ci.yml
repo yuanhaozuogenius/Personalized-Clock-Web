@@ -1,0 +1,41 @@
+name: Web Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - '*.css'
+      - '*.js'
+      - '*.json'
+      - '*.webmanifest'
+      - 'tests/**'
+      - '.github/workflows/web-ci.yml'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Test recurrence rules and documentation
+        run: npm test
+      - name: Build browser bundle
+        run: npm run build
+      - name: Check generated bundle
+        run: git diff --exit-code app.bundle.js
+      - name: Check syntax
+        run: |
+          node --check app.js
+          node --check recurrence.js
+          node --check sw.js
+          python -m py_compile tests/ui_smoke.py

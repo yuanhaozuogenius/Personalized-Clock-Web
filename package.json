@@ -1,0 +1,9 @@
+{
+  "name": "personalized-clock-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/recurrence.test.js tests/docs.test.js",
+    "build": "node build.mjs"
+  }
+}

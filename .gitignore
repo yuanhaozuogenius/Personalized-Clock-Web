@@ -1,0 +1,9 @@
+# Local task state
+.codex/
+
+# Browser and Python test artifacts
+__pycache__/
+*.pyc
+
+# Platform files
+.DS_Store
