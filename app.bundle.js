@@ -136,8 +136,40 @@ function nextDates(alarm, after = new Date(), count = 4) {
 }
 
 const STORAGE_KEY = "personalized-clock.alarms.v1";
+const SNOOZE_STORAGE_KEY = "personalized-clock.snoozes.v1";
+const SOUND_OPTIONS = {
+  dawn: {
+    title: "晨光",
+    description: "渐进和弦",
+    cycleMs: 4_200,
+    notes: [[523.25, 0, 1.15, .08, "sine"], [659.25, .42, 1.15, .075, "sine"], [783.99, .84, 1.25, .07, "sine"], [1046.5, 1.28, 1.45, .055, "sine"]]
+  },
+  spring: {
+    title: "清泉",
+    description: "清亮钟音",
+    cycleMs: 3_800,
+    notes: [[880, 0, .9, .075, "triangle"], [1174.66, .5, 1.05, .065, "sine"], [987.77, 1.02, 1.2, .06, "triangle"]]
+  },
+  breeze: {
+    title: "微风",
+    description: "柔和琶音",
+    cycleMs: 4_600,
+    notes: [[392, 0, 1.2, .065, "sine"], [493.88, .36, 1.2, .06, "sine"], [587.33, .72, 1.25, .058, "sine"], [739.99, 1.08, 1.35, .052, "sine"], [587.33, 1.5, 1.45, .045, "sine"]]
+  },
+  classic: {
+    title: "经典",
+    description: "清晰双音",
+    cycleMs: 2_800,
+    notes: [[659.25, 0, .5, .11, "sine"], [880, .24, .62, .1, "sine"]]
+  }
+};
+
+function soundOption(id) { return SOUND_OPTIONS[id] ?? SOUND_OPTIONS.dawn; }
 const $ = selector => document.querySelector(selector);
 const alarmList = $("#alarm-list");
+const alarmCount = $("#alarm-count");
+const nextAlarmTime = $("#next-alarm-time");
+const nextAlarmLabel = $("#next-alarm-label");
 const addButton = $("#add-alarm");
 const dialog = $("#alarm-editor");
 const form = $("#alarm-form");
@@ -157,19 +189,39 @@ const workDaysInput = $("#work-days");
 const restDaysInput = $("#rest-days");
 const datePreview = $("#date-preview");
 const validationMessage = $("#validation-message");
+const snoozeEnabledInput = $("#snooze-enabled");
+const snoozeMinutesInput = $("#snooze-minutes");
+const snoozeMinutesRow = $("#snooze-minutes-row");
+const alarmSoundInput = $("#alarm-sound");
+const previewSoundButton = $("#preview-sound");
 
 let alarms = loadAlarms();
+let pendingSnoozes = loadPendingSnoozes();
 let editingID = null;
 let editingWeekdays = new Set([1, 2, 3, 4, 5]);
 
 function loadAlarms() {
   try {
     const value = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(value) ? value : [];
+    if (!Array.isArray(value)) return [];
+    return value.map(alarm => ({
+      ...alarm,
+      sound: SOUND_OPTIONS[alarm.sound] ? alarm.sound : "dawn",
+      snoozeEnabled: alarm.snoozeEnabled !== false,
+      // Version 1 used a hidden nine-minute default, so migrate it to the visible five-minute default.
+      snoozeMinutes: alarm.snoozeMinutes === 9 ? 5 : Math.min(60, Math.max(1, Number(alarm.snoozeMinutes) || 5))
+    }));
   } catch { return []; }
 }
 
 function saveAlarms() { localStorage.setItem(STORAGE_KEY, JSON.stringify(alarms)); }
+function loadPendingSnoozes() {
+  try {
+    const value = JSON.parse(localStorage.getItem(SNOOZE_STORAGE_KEY));
+    return Array.isArray(value) ? value.filter(item => item?.alarm && Number.isFinite(item.dueAt)) : [];
+  } catch { return []; }
+}
+function savePendingSnoozes() { localStorage.setItem(SNOOZE_STORAGE_KEY, JSON.stringify(pendingSnoozes)); }
 function createID() { return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`; }
 
 function defaultAlarm() {
@@ -179,10 +231,11 @@ function defaultAlarm() {
     time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
     startDate: toDateInputValue(now),
     label: "闹钟",
+    sound: "dawn",
     repeatRule: { type: "once" },
     isEnabled: true,
     snoozeEnabled: true,
-    snoozeMinutes: 9
+    snoozeMinutes: 5
   };
 }
 
@@ -203,14 +256,41 @@ function nextSummary(alarm) {
   } catch (error) { return error.message; }
 }
 
+function updateOverview() {
+  const enabledCount = alarms.filter(alarm => alarm.isEnabled).length;
+  alarmCount.textContent = `${enabledCount} 个已启用`;
+  const candidates = alarms.filter(alarm => alarm.isEnabled).flatMap(alarm => {
+    try {
+      const date = nextDates(alarm, new Date(), 1)[0];
+      return date ? [{ alarm, date, snoozed: false }] : [];
+    } catch { return []; }
+  });
+  const pending = pendingSnoozes[0];
+  if (pending) candidates.push({ alarm: pending.alarm, date: new Date(pending.dueAt), snoozed: true });
+  candidates.sort((left, right) => left.date - right.date);
+  const next = candidates[0];
+  if (!next) {
+    nextAlarmTime.textContent = "--:--";
+    nextAlarmLabel.textContent = alarms.length ? "当前没有即将响铃的闹钟" : "创建一个闹钟开始使用";
+    return;
+  }
+  nextAlarmTime.textContent = next.date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  nextAlarmLabel.textContent = `${next.alarm.label || "闹钟"}${next.snoozed ? " · 稍后提醒" : ""} · ${formatDate(next.date)}`;
+}
+
 function render() {
+  updateOverview();
   if (!alarms.length) {
-    alarmList.innerHTML = `<div class="empty-state"><div>⏰</div><p>暂无闹钟</p><small>点击右上角加号创建闹钟</small></div>`;
+    alarmList.innerHTML = `<div class="empty-state"><div class="empty-icon">＋</div><p>还没有闹钟</p><small>点击右上角加号，创建你的第一个自定义闹钟</small></div>`;
     return;
   }
   alarmList.innerHTML = alarms.map(alarm => `
-    <article class="alarm-card" data-id="${escapeHTML(alarm.id)}" tabindex="0">
-      <div><p class="alarm-time">${escapeHTML(alarm.time)}</p><p class="alarm-details">${escapeHTML(alarm.label?.trim() || "闹钟")} · ${escapeHTML(repeatRuleTitle(alarm.repeatRule))}</p></div>
+    <article class="alarm-card ${alarm.isEnabled ? "" : "disabled"}" data-id="${escapeHTML(alarm.id)}" tabindex="0">
+      <div class="alarm-card-copy">
+        <p class="alarm-time">${escapeHTML(alarm.time)}</p>
+        <p class="alarm-details">${escapeHTML(alarm.label?.trim() || "闹钟")}</p>
+        <div class="alarm-tags"><span>${escapeHTML(repeatRuleTitle(alarm.repeatRule))}</span><span>♪ ${escapeHTML(soundOption(alarm.sound).title)}</span>${alarm.snoozeEnabled ? `<span>稍后 ${alarm.snoozeMinutes ?? 5} 分钟</span>` : ""}</div>
+      </div>
       <label class="switch" aria-label="启用 ${escapeHTML(alarm.label || "闹钟")}"><input data-action="toggle" type="checkbox" ${alarm.isEnabled ? "checked" : ""}><span></span></label>
       <div class="alarm-next">${escapeHTML(nextSummary(alarm))}</div>
     </article>`).join("");
@@ -229,9 +309,9 @@ function alarmFromForm() {
   const previous = alarms.find(alarm => alarm.id === editingID);
   return {
     id: editingID ?? createID(), time: timeInput.value, startDate: startDateInput.value,
-    label: labelInput.value.trim() || "闹钟", repeatRule: ruleFromForm(),
-    isEnabled: previous?.isEnabled ?? true, snoozeEnabled: previous?.snoozeEnabled ?? true,
-    snoozeMinutes: previous?.snoozeMinutes ?? 9
+    label: labelInput.value.trim() || "闹钟", sound: alarmSoundInput.value, repeatRule: ruleFromForm(),
+    isEnabled: previous?.isEnabled ?? true, snoozeEnabled: snoozeEnabledInput.checked,
+    snoozeMinutes: Number(snoozeMinutesInput.value)
   };
 }
 
@@ -265,6 +345,7 @@ function openEditor(alarm = defaultAlarm()) {
   editingID = alarms.some(item => item.id === alarm.id) ? alarm.id : null;
   timeInput.value = alarm.time; startDateInput.value = alarm.startDate; labelInput.value = alarm.label;
   repeatTypeInput.value = alarm.repeatRule.type;
+  alarmSoundInput.value = SOUND_OPTIONS[alarm.sound] ? alarm.sound : "dawn";
   editingWeekdays = new Set(alarm.repeatRule.weekdays ?? [1, 2, 3, 4, 5]);
   intervalDaysInput.value = alarm.repeatRule.days ?? 2;
   workDaysInput.value = alarm.repeatRule.workDays ?? 2; restDaysInput.value = alarm.repeatRule.restDays ?? 2;
@@ -304,7 +385,8 @@ weekdayButtons.addEventListener("click", event => {
 });
 
 repeatTypeInput.addEventListener("change", () => { updateConditionalFields(); updatePreview(); });
-[timeInput, startDateInput, intervalDaysInput, workDaysInput, restDaysInput].forEach(input => input.addEventListener("input", updatePreview));
+[timeInput, startDateInput, intervalDaysInput, workDaysInput, restDaysInput, snoozeMinutesInput].forEach(input => input.addEventListener("input", updatePreview));
+snoozeEnabledInput.addEventListener("change", () => { snoozeMinutesRow.hidden = !snoozeEnabledInput.checked; });
 
 form.addEventListener("submit", event => {
   event.preventDefault();
@@ -320,6 +402,8 @@ form.addEventListener("submit", event => {
 deleteButton.addEventListener("click", () => {
   if (!editingID || !window.confirm("确定删除这个闹钟吗？")) return;
   alarms = alarms.filter(alarm => alarm.id !== editingID);
+  pendingSnoozes = pendingSnoozes.filter(item => item.alarm.id !== editingID);
+  savePendingSnoozes();
   saveAlarms(); render();
   armPageReminders(false).catch(console.error);
   closeEditor();
@@ -339,8 +423,12 @@ const shareButton = $("#share-app");
 const ringingOverlay = $("#ringing-overlay");
 const ringingTime = $("#ringing-time");
 const ringingLabel = $("#ringing-label");
+const ringingSound = $("#ringing-sound");
 const stopAlarmButton = $("#stop-alarm");
 const snoozeAlarmButton = $("#snooze-alarm");
+const snoozeSummary = $("#snooze-summary");
+const snoozeStatus = $("#snooze-status");
+const cancelSnoozeButton = $("#cancel-snooze");
 let audioContext;
 let soundTimer;
 let activeRingingAlarm;
@@ -355,26 +443,30 @@ function ensureAudio() {
   return audioContext.resume();
 }
 
-function soundPulse() {
+/** Plays an original, short synthesized pattern without shipping copyrighted audio files. */
+function soundPulse(soundID = "dawn") {
   if (!audioContext) return;
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(660, audioContext.currentTime);
-  oscillator.frequency.setValueAtTime(880, audioContext.currentTime + .18);
-  gain.gain.setValueAtTime(.0001, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.25, audioContext.currentTime + .02);
-  gain.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + .42);
-  oscillator.connect(gain).connect(audioContext.destination);
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime + .45);
+  const pattern = soundOption(soundID);
+  const start = audioContext.currentTime + .02;
+  for (const [frequency, offset, duration, volume, type] of pattern.notes) {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, start + offset);
+    gain.gain.setValueAtTime(.0001, start + offset);
+    gain.gain.exponentialRampToValueAtTime(volume, start + offset + .035);
+    gain.gain.exponentialRampToValueAtTime(.0001, start + offset + duration);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start(start + offset);
+    oscillator.stop(start + offset + duration + .05);
+  }
 }
 
 async function showWebNotification(alarm) {
   if (!("Notification" in window) || Notification.permission !== "granted" || !("serviceWorker" in navigator)) return;
   const registration = await navigator.serviceWorker.ready;
   await registration.showNotification(alarm.label || "闹钟", {
-    body: `${alarm.time} · ${repeatRuleTitle(alarm.repeatRule)}`,
+    body: `${alarm.time} · ${repeatRuleTitle(alarm.repeatRule)} · ${soundOption(alarm.sound).title}`,
     icon: "icon.svg",
     tag: `alarm-${alarm.id}`,
     renotify: true
@@ -385,12 +477,15 @@ async function triggerRinging(alarm) {
   activeRingingAlarm = alarm;
   ringingTime.textContent = alarm.time;
   ringingLabel.textContent = alarm.label || "闹钟";
+  ringingSound.textContent = `${soundOption(alarm.sound).title} · ${soundOption(alarm.sound).description}`;
+  snoozeAlarmButton.hidden = alarm.snoozeEnabled === false;
+  snoozeAlarmButton.textContent = `${alarm.snoozeMinutes ?? 5} 分钟后提醒`;
   ringingOverlay.hidden = false;
   try {
     await ensureAudio();
-    soundPulse();
+    soundPulse(alarm.sound);
     clearInterval(soundTimer);
-    soundTimer = setInterval(soundPulse, 900);
+    soundTimer = setInterval(() => soundPulse(alarm.sound), soundOption(alarm.sound).cycleMs);
   } catch (error) {
     reminderStatus.textContent = error.message;
   }
@@ -408,7 +503,7 @@ async function armPageReminders(requestNotifications) {
   remindersEnabled = true;
   enableRemindersButton.textContent = "已启用";
   enableRemindersButton.dataset.enabled = "true";
-  reminderStatus.textContent = "页面内提醒已启动，正在确认声音权限…";
+  reminderStatus.textContent = "页面内提醒已启动（请保持页面打开）";
   await ensureAudio();
   let notificationsGranted = "Notification" in window && Notification.permission === "granted";
   if (requestNotifications && "Notification" in window && Notification.permission === "default") {
@@ -428,23 +523,64 @@ async function enableReminders() {
 }
 
 enableRemindersButton.addEventListener("click", enableReminders);
+previewSoundButton.addEventListener("click", async () => {
+  await armPageReminders(false).catch(() => {});
+  soundPulse(alarmSoundInput.value);
+  previewSoundButton.textContent = `正在试听：${soundOption(alarmSoundInput.value).title}`;
+  setTimeout(() => { previewSoundButton.textContent = "试听当前铃声"; }, 1800);
+});
 testReminderButton.addEventListener("click", async () => {
   await armPageReminders(false).catch(() => {});
-  triggerRinging({ id: "test", time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), label: "测试闹钟", repeatRule: { type: "once" }, snoozeMinutes: 1 });
+  triggerRinging({ id: "test", time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), label: "测试闹钟", sound: alarmSoundInput.value || "dawn", repeatRule: { type: "once" }, snoozeEnabled: true, snoozeMinutes: 5 });
 });
 stopAlarmButton.addEventListener("click", stopRinging);
+function renderSnoozeSummary() {
+  pendingSnoozes.sort((left, right) => left.dueAt - right.dueAt);
+  const pending = pendingSnoozes[0];
+  snoozeSummary.hidden = !pending;
+  updateOverview();
+  if (!pending) return;
+  const remainingSeconds = Math.max(0, Math.ceil((pending.dueAt - Date.now()) / 1000));
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = String(remainingSeconds % 60).padStart(2, "0");
+  const dueTime = new Date(pending.dueAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  snoozeStatus.textContent = `${pending.alarm.label || "闹钟"} · ${dueTime} 再响（${minutes}:${seconds}）`;
+}
+
 snoozeAlarmButton.addEventListener("click", () => {
   const alarm = activeRingingAlarm;
   stopRinging();
-  if (!alarm) return;
-  const minutes = alarm.snoozeMinutes ?? 9;
-  reminderStatus.textContent = `将在 ${minutes} 分钟后再次提醒（页面需保持打开）`;
-  setTimeout(() => triggerRinging(alarm), minutes * 60_000);
+  if (!alarm || alarm.snoozeEnabled === false) return;
+  const minutes = Math.min(60, Math.max(1, Number(alarm.snoozeMinutes) || 5));
+  pendingSnoozes = pendingSnoozes.filter(item => item.alarm.id !== alarm.id);
+  pendingSnoozes.push({ id: createID(), dueAt: Date.now() + minutes * 60_000, alarm: { ...alarm, snoozeMinutes: minutes } });
+  savePendingSnoozes();
+  renderSnoozeSummary();
+  reminderStatus.textContent = `已稍后提醒，将在 ${minutes} 分钟后再次响铃`;
 });
 
-setInterval(() => {
+cancelSnoozeButton.addEventListener("click", () => {
+  const pending = pendingSnoozes.sort((left, right) => left.dueAt - right.dueAt)[0];
+  if (!pending) return;
+  pendingSnoozes = pendingSnoozes.filter(item => item.id !== pending.id);
+  savePendingSnoozes();
+  renderSnoozeSummary();
+  reminderStatus.textContent = "已取消稍后提醒";
+});
+
+function checkDueAlarms() {
   if (!remindersEnabled || !ringingOverlay.hidden) return;
   const now = new Date();
+  const dueSnooze = pendingSnoozes.sort((left, right) => left.dueAt - right.dueAt)[0];
+  if (dueSnooze?.dueAt <= now.getTime()) {
+    pendingSnoozes = pendingSnoozes.filter(item => item.id !== dueSnooze.id);
+    savePendingSnoozes();
+    renderSnoozeSummary();
+    const dueTime = new Date(dueSnooze.dueAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+    triggerRinging({ ...dueSnooze.alarm, time: dueTime });
+    return;
+  }
+
   for (const alarm of alarms.filter(item => item.isEnabled)) {
     try {
       const due = nextDates(alarm, new Date(now.getTime() - 65_000), 1)[0];
@@ -456,7 +592,11 @@ setInterval(() => {
       break;
     } catch { /* Invalid alarms are already shown in the editor. */ }
   }
-}, 10_000);
+}
+
+renderSnoozeSummary();
+setInterval(renderSnoozeSummary, 1_000);
+setInterval(checkDueAlarms, 2_000);
 
 document.addEventListener("visibilitychange", () => {
   if (remindersEnabled && document.hidden) reminderStatus.textContent = "页面进入后台，提醒可能延迟；请勿关闭页面或让电脑休眠";

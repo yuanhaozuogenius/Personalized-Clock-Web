@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6fa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>使用说明 · 个性闹钟</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css?v=7">
+</head>
+<body class="guide-page">
+  <main class="guide-shell">
+    <header class="guide-header">
+      <a class="guide-back" href="index.html" aria-label="返回闹钟">‹</a>
+      <div><p class="eyebrow">IPHONE GUIDE</p><h1>使用说明</h1></div>
+    </header>
+
+    <section class="guide-hero">
+      <span aria-hidden="true">⏰</span>
+      <div><strong>先把它添加到主屏幕</strong><p>这样打开更像普通 App，也更容易收到网页通知。</p></div>
+    </section>
+
+    <section class="guide-card">
+      <h2>第一次使用</h2>
+      <ol class="guide-steps">
+        <li><span>1</span><p>用 <strong>Safari</strong> 打开分享链接。</p></li>
+        <li><span>2</span><p>点底部“分享”，选择<strong>添加到主屏幕</strong>，再点“添加”。</p></li>
+        <li><span>3</span><p>从主屏幕打开“个性闹钟”，点<strong>启用提醒</strong>并允许通知。</p></li>
+        <li><span>4</span><p>点<strong>测试响铃</strong>，确认手机音量和声音正常。</p></li>
+      </ol>
+    </section>
+
+    <section class="guide-card">
+      <h2>设置闹钟</h2>
+      <p>点右上角“＋”，设置时间、重复规律、铃声和标签，然后存储。稍后提醒默认 5 分钟，也可以改成 1–60 分钟。</p>
+      <div class="guide-tip"><strong>闹钟响起后</strong><p>点“5 分钟后提醒”会开始倒计时并再次响铃；点“停止”则结束本次响铃。</p></div>
+    </section>
+
+    <section class="guide-card">
+      <h2>每天打开时</h2>
+      <ul class="guide-list">
+        <li>刷新或重新打开后，再点一次“启用提醒”。</li>
+        <li>保持 Web App 打开，避免锁屏后被系统长时间挂起。</li>
+        <li>闹钟只保存在当前 iPhone；清除 Safari 网站数据会删除它。</li>
+      </ul>
+    </section>
+
+    <section class="guide-warning">
+      <strong>重要提醒请同时使用 iPhone 自带“时钟”</strong>
+      <p>网页不能控制苹果“时钟”，也不是系统级闹钟。关闭页面、锁屏太久、省电模式或系统暂停网页时，响铃可能延迟或失效。</p>
+    </section>
+
+    <section class="guide-card">
+      <h2>没有声音？</h2>
+      <ol class="compact-list">
+        <li>回首页点“启用提醒”。</li>
+        <li>点“测试响铃”，并调高媒体音量。</li>
+        <li>检查 Safari 通知权限；仍无效时，从主屏幕重新打开。</li>
+      </ol>
+    </section>
+
+    <a class="guide-primary" href="index.html">返回个性闹钟</a>
+  </main>
+  <script>
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+  </script>
+</body>
+</html>

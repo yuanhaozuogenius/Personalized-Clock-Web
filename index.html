@@ -10,27 +10,33 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
   <main class="app-shell">
     <header class="top-bar">
-      <div><p class="eyebrow">WEB PREVIEW</p><h1>闹钟</h1></div>
-      <button id="add-alarm" class="icon-button" type="button" aria-label="添加闹钟">＋</button>
+      <div><p class="eyebrow">PERSONAL CLOCK</p><h1>早上好</h1></div>
+      <div class="top-actions"><a class="help-button" href="help.html" aria-label="使用说明">?</a><button id="add-alarm" class="icon-button" type="button" aria-label="添加闹钟">＋</button></div>
     </header>
+    <section class="next-overview" aria-label="下一次响铃">
+      <div><span>下一次响铃</span><strong id="next-alarm-time">--:--</strong><p id="next-alarm-label">创建一个闹钟开始使用</p></div>
+      <div class="overview-icon" aria-hidden="true">◷</div>
+    </section>
     <section class="notice" aria-label="Web 版本说明">
       <strong>可分享体验版</strong>
       <p>周期与数据会完整保存；网页不能控制苹果自带“时钟”App，关闭网页后的系统级响铃不受保证。</p>
     </section>
     <section class="reminder-card" aria-label="网页提醒测试">
-      <div><strong>页面内提醒</strong><p id="reminder-status">保存闹钟时会自动启用声音；刷新页面后需再次启用</p></div>
+      <div><strong>页面内提醒</strong><p id="reminder-status">保存闹钟时会自动启用声音；刷新页面后需再次启用</p><div id="snooze-summary" class="snooze-summary" hidden><span id="snooze-status"></span><button id="cancel-snooze" type="button">取消</button></div></div>
       <div class="action-row">
         <button id="enable-reminders" class="secondary-button" type="button">启用提醒</button>
         <button id="test-reminder" class="secondary-button" type="button">测试响铃</button>
         <button id="install-app" class="secondary-button" type="button">安装</button>
         <button id="share-app" class="secondary-button" type="button">分享</button>
+        <a class="secondary-button" href="help.html">使用说明</a>
       </div>
     </section>
+    <div class="section-heading"><h2>我的闹钟</h2><span id="alarm-count">0 个</span></div>
     <section id="alarm-list" class="alarm-list" aria-live="polite"></section>
   </main>
 
@@ -60,17 +66,28 @@
           <label class="form-row"><span>停止响铃</span><span><input id="rest-days" type="number" min="1" max="10000" inputmode="numeric" value="2"> 天</span></label>
           <p class="field-help">例如上二休二：连续响铃 2 天，停止响铃 2 天。</p>
         </section>
-        <section class="form-section"><h3>接下来</h3><ol id="date-preview" class="date-preview"></ol><p id="validation-message" class="validation-message" role="alert"></p></section>
+        <section class="form-card sound-settings">
+          <label class="form-row"><span>铃声</span><select id="alarm-sound">
+            <option value="dawn">晨光 · 渐进和弦</option>
+            <option value="spring">清泉 · 清亮钟音</option>
+            <option value="breeze">微风 · 柔和琶音</option>
+            <option value="classic">经典 · 清晰双音</option>
+          </select></label>
+          <button id="preview-sound" class="inline-action" type="button">试听当前铃声</button>
+        </section>        <section class="form-card snooze-settings">
+          <label class="form-row"><span>稍后提醒</span><input id="snooze-enabled" type="checkbox" checked></label>
+          <label id="snooze-minutes-row" class="form-row"><span>提醒间隔</span><span><input id="snooze-minutes" type="number" min="1" max="60" inputmode="numeric" value="5"> 分钟</span></label>
+        </section>        <section class="form-section"><h3>接下来</h3><ol id="date-preview" class="date-preview"></ol><p id="validation-message" class="validation-message" role="alert"></p></section>
         <button id="delete-alarm" class="delete-button" type="button" hidden>删除闹钟</button>
       </div>
     </form>
   </dialog>
 
   <section id="ringing-overlay" class="ringing-overlay" hidden>
-    <div class="ringing-content"><p id="ringing-time" class="ringing-time"></p><h2 id="ringing-label">闹钟</h2><p>网页提醒正在响铃</p>
+    <div class="ringing-content"><div class="ring-orbit" aria-hidden="true"><span></span><span></span><span></span></div><p id="ringing-time" class="ringing-time"></p><h2 id="ringing-label">闹钟</h2><p id="ringing-sound">网页提醒正在响铃</p>
       <div class="ringing-actions"><button id="snooze-alarm" type="button">稍后提醒</button><button id="stop-alarm" type="button">停止</button></div>
     </div>
   </section>
-  <script defer src="app.bundle.js?v=5"></script>
+  <script defer src="app.bundle.js?v=7"></script>
 </body>
 </html>
