@@ -1,0 +1,16 @@
+{
+  "name": "个性闹钟",
+  "short_name": "个性闹钟",
+  "description": "支持每隔 X 天和轮班循环的个性闹钟体验版",
+  "lang": "zh-CN",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
