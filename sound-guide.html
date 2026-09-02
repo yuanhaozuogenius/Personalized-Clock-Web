@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6fa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>本地铃声指南 · 个性闹钟</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css?v=18">
+</head>
+<body class="guide-page">
+  <main class="guide-shell">
+    <header class="guide-header">
+      <a class="guide-back" href="help.html" aria-label="返回使用说明"><span class="guide-back-icon" aria-hidden="true"></span></a>
+      <div><p class="eyebrow">LOCAL SOUND</p><h1>本地铃声</h1></div>
+    </header>
+
+    <section class="guide-hero">
+      <span aria-hidden="true">♪</span>
+      <div><strong>从自己的音频中截取铃声</strong><p>音频只保存在当前 iPhone，可选择开始位置和 1–60 秒响铃片段。</p></div>
+    </section>
+
+    <section class="guide-card">
+      <h2>使用“语音备忘录”</h2>
+      <ol class="guide-steps">
+        <li><span>1</span><p>打开 iPhone 的“语音备忘录”，选择录音，轻点<span class="inline-more-icon" aria-label="三个点图标">•••</span>，再轻点<strong>共享</strong>。</p></li>
+        <li><span>2</span><p>轻点<strong>存储到“文件”</strong>。默认导出的 M4A 可以直接使用，无需转换。</p></li>
+        <li><span>3</span><p>回到个性闹钟，选择<strong>本地音频文件</strong>，再从“文件”中选取刚才的录音。</p></li>
+        <li><span>4</span><p>根据波形调整<strong>开始位置</strong>和<strong>片段时长</strong>，试听后存储闹钟。</p></li>
+      </ol>
+      <a class="guide-inline-link" href="https://support.apple.com/zh-cn/guide/iphone/iph831c37815/ios" target="_blank" rel="noopener">查看 Apple 官方导出说明</a>
+    </section>
+
+    <section class="guide-card">
+      <h2>使用其他音频文件</h2>
+      <ul class="guide-list">
+        <li>M4A/AAC、MP3 和 WAV 可以直接从“文件”中选择。</li>
+        <li>其他格式也可以先尝试导入；是否可用以当前 Safari 能否读取为准。</li>
+        <li>单个文件不能超过 12 MB，音频至少需要 1 秒。</li>
+      </ul>
+    </section>
+
+    <section class="guide-card">
+      <h2>提示无法读取时</h2>
+      <p>需要先用你信任的音频转换工具将文件转换为 M4A/AAC、MP3 或 WAV，再重新选择。具体转换步骤请按该工具自己的官方指南操作；个性闹钟不会上传或代为转换你的音频。</p>
+    </section>
+
+    <section class="guide-warning">
+      <strong>Apple Music 等在线播放内容不能直接选择</strong>
+      <p>订阅下载的歌曲通常不是可导出的普通音频文件。请先通过内容提供方允许的方式取得不受保护的本地文件，并遵循其官方导出指南；本应用不提供提取或绕过保护的流程。</p>
+    </section>
+
+    <a class="guide-primary" href="index.html">返回个性闹钟</a>
+  </main>
+  <script>
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+  </script>
+</body>
+</html>

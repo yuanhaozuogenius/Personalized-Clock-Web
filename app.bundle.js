@@ -154,6 +154,9 @@ const ASSET_DB_NAME = "personalized-clock-assets";
 const ASSET_STORE_NAME = "assets";
 const MAX_SOUND_BYTES = 12 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+const DEFAULT_SOUND_CLIP_SECONDS = 30;
+const MAX_SOUND_CLIP_SECONDS = 60;
+const MIN_SOUND_CLIP_SECONDS = 1;
 const SOUND_OPTIONS = {
   dawn: {
     title: "晨光",
@@ -253,6 +256,14 @@ const previewSoundButton = $("#preview-sound");
 const customSoundFields = $("#custom-sound-fields");
 const customSoundFileInput = $("#custom-sound-file");
 const customSoundStatus = $("#custom-sound-status");
+const soundClipEditor = $("#sound-clip-editor");
+const soundWaveform = $("#sound-waveform");
+const soundClipSelection = $("#sound-clip-selection");
+const soundClipStartInput = $("#sound-clip-start");
+const soundClipDurationInput = $("#sound-clip-duration");
+const soundClipStartValue = $("#sound-clip-start-value");
+const soundClipDurationValue = $("#sound-clip-duration-value");
+const soundClipSummary = $("#sound-clip-summary");
 const datePicker = $("#date-picker");
 const cancelDatePickerButton = $("#cancel-date-picker");
 const confirmDatePickerButton = $("#confirm-date-picker");
@@ -284,6 +295,10 @@ let editingWeekdays = new Set([1, 2, 3, 4, 5]);
 let editingDates = new Set();
 let editingSoundAssetID;
 let editingSoundName;
+let editingSoundDuration = 0;
+let editingSoundStart = 0;
+let editingSoundEnd = 0;
+let editingSoundBuffer;
 let calendarDraftDates = new Set();
 let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 let calendarGesture;
@@ -292,6 +307,7 @@ let swipeGesture;
 let openSwipeRow;
 let suppressCardClick = false;
 const SWIPE_REVEAL_PX = 82;
+const decodedAudioBuffers = new Map();
 
 function loadAlarms() {
   try {
@@ -300,6 +316,8 @@ function loadAlarms() {
     return value.map(alarm => ({
       ...alarm,
       sound: alarm.sound === "custom" && alarm.soundAssetID ? "custom" : SOUND_OPTIONS[alarm.sound] ? alarm.sound : "dawn",
+      soundStart: Math.max(0, Number(alarm.soundStart) || 0),
+      soundEnd: Number(alarm.soundEnd) > 0 ? Number(alarm.soundEnd) : undefined,
       snoozeEnabled: alarm.snoozeEnabled !== false,
       // Version 1 used a hidden nine-minute default, so migrate it to the visible five-minute default.
       snoozeMinutes: alarm.snoozeMinutes === 9 ? 5 : Math.min(60, Math.max(1, Number(alarm.snoozeMinutes) || 5))
@@ -487,6 +505,8 @@ function alarmFromForm() {
     label: labelInput.value.trim() || "闹钟", sound: alarmSoundInput.value, repeatRule: ruleFromForm(),
     soundAssetID: alarmSoundInput.value === "custom" ? editingSoundAssetID : undefined,
     soundName: alarmSoundInput.value === "custom" ? editingSoundName : undefined,
+    soundStart: alarmSoundInput.value === "custom" ? editingSoundStart : undefined,
+    soundEnd: alarmSoundInput.value === "custom" ? editingSoundEnd : undefined,
     isEnabled: previous?.isEnabled ?? true, snoozeEnabled: snoozeEnabledInput.checked,
     snoozeMinutes: Number(snoozeMinutesInput.value)
   };
@@ -500,6 +520,8 @@ function updateConditionalFields() {
   intervalFields.hidden = type !== "intervalDays";
   workRestFields.hidden = type !== "workRest";
   customSoundFields.hidden = alarmSoundInput.value !== "custom";
+  soundClipEditor.hidden = alarmSoundInput.value !== "custom" || !editingSoundDuration;
+  previewSoundButton.textContent = alarmSoundInput.value === "custom" ? "试听所选片段" : "试听当前铃声";
   selectedDateSummary.textContent = editingDates.size ? `已选 ${editingDates.size} 天` : "尚未选择";
 }
 
@@ -567,7 +589,11 @@ function openEditor(alarm = defaultAlarm()) {
   alarmSoundInput.value = alarm.sound === "custom" && alarm.soundAssetID ? "custom" : SOUND_OPTIONS[alarm.sound] ? alarm.sound : "dawn";
   editingSoundAssetID = alarm.soundAssetID;
   editingSoundName = alarm.soundName;
-  customSoundStatus.textContent = editingSoundName || "支持手机“文件”中的音频，最大 12 MB。";
+  editingSoundStart = Math.max(0, Number(alarm.soundStart) || 0);
+  editingSoundEnd = Number(alarm.soundEnd) > editingSoundStart ? Number(alarm.soundEnd) : 0;
+  editingSoundDuration = 0;
+  editingSoundBuffer = undefined;
+  customSoundStatus.textContent = editingSoundName ? `正在读取：${editingSoundName}` : "支持 M4A（语音备忘录）、MP3、WAV 等常见音频，最大 12 MB。";
   editingWeekdays = new Set(alarm.repeatRule.weekdays ?? [1, 2, 3, 4, 5]);
   editingDates = new Set(alarm.repeatRule.dates ?? []);
   intervalDaysInput.value = alarm.repeatRule.days ?? 2;
@@ -575,6 +601,9 @@ function openEditor(alarm = defaultAlarm()) {
   deleteButton.hidden = editingID === null;
   updateConditionalFields(); renderWeekdayButtons(); updatePreview(); dialog.showModal();
   dialog.focus({ preventScroll: true });
+  if (editingSoundAssetID) loadSoundClipEditor(editingSoundAssetID).catch(error => {
+    customSoundStatus.textContent = error.message || "无法读取这个音频文件，请重新选择。";
+  });
 }
 
 function closeEditor() { dialog.close(); editingID = null; }
@@ -750,32 +779,147 @@ calendarGrid.addEventListener("click", event => {
   if (value) setCalendarDate(value, !calendarDraftDates.has(value));
 });
 
+function formatSoundTime(value) {
+  const totalSeconds = Math.max(0, Math.round(Number(value) || 0));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor(totalSeconds % 3600 / 60);
+  const seconds = totalSeconds % 60;
+  return hours
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    : `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function normalizeSoundClip(duration, start = 0, end) {
+  const safeDuration = Math.max(MIN_SOUND_CLIP_SECONDS, Number(duration) || MIN_SOUND_CLIP_SECONDS);
+  const safeStart = Math.min(Math.max(0, Number(start) || 0), Math.max(0, safeDuration - MIN_SOUND_CLIP_SECONDS));
+  const requestedLength = Number(end) > safeStart ? Number(end) - safeStart : DEFAULT_SOUND_CLIP_SECONDS;
+  const length = Math.min(
+    Math.max(MIN_SOUND_CLIP_SECONDS, requestedLength),
+    MAX_SOUND_CLIP_SECONDS,
+    safeDuration - safeStart
+  );
+  return { start: safeStart, end: safeStart + length };
+}
+
+function drawSoundWaveform(buffer) {
+  if (!buffer || soundClipEditor.hidden) return;
+  const width = Math.max(1, soundWaveform.clientWidth);
+  const height = Math.max(1, soundWaveform.clientHeight);
+  const scale = Math.min(2, window.devicePixelRatio || 1);
+  soundWaveform.width = Math.round(width * scale);
+  soundWaveform.height = Math.round(height * scale);
+  const context = soundWaveform.getContext("2d");
+  context.setTransform(scale, 0, 0, scale, 0, 0);
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim() || "#8e8e93";
+  const samples = buffer.getChannelData(0);
+  const barWidth = 2;
+  const gap = 2;
+  const bars = Math.max(1, Math.floor(width / (barWidth + gap)));
+  const stride = Math.max(1, Math.floor(samples.length / bars));
+  for (let bar = 0; bar < bars; bar += 1) {
+    let peak = 0;
+    const from = bar * stride;
+    const to = Math.min(samples.length, from + stride);
+    const sampleStep = Math.max(1, Math.floor((to - from) / 48));
+    for (let index = from; index < to; index += sampleStep) peak = Math.max(peak, Math.abs(samples[index]));
+    const barHeight = Math.max(4, peak * (height - 12));
+    context.globalAlpha = .42;
+    context.fillRect(bar * (barWidth + gap), (height - barHeight) / 2, barWidth, barHeight);
+  }
+  context.globalAlpha = 1;
+}
+
+function updateSoundClipUI() {
+  if (!editingSoundDuration) return;
+  const length = editingSoundEnd - editingSoundStart;
+  soundClipStartInput.max = String(Math.max(0, Math.floor(editingSoundDuration - MIN_SOUND_CLIP_SECONDS)));
+  soundClipStartInput.value = String(Math.round(editingSoundStart));
+  soundClipDurationInput.max = String(Math.max(MIN_SOUND_CLIP_SECONDS, Math.floor(Math.min(MAX_SOUND_CLIP_SECONDS, editingSoundDuration - editingSoundStart))));
+  soundClipDurationInput.value = String(Math.max(MIN_SOUND_CLIP_SECONDS, Math.round(length)));
+  soundClipStartValue.textContent = formatSoundTime(editingSoundStart);
+  soundClipDurationValue.textContent = `${Math.round(length)} 秒`;
+  soundClipSummary.textContent = `${formatSoundTime(editingSoundStart)}–${formatSoundTime(editingSoundEnd)} · ${Math.round(length)} 秒`;
+  soundClipSelection.style.left = `${editingSoundStart / editingSoundDuration * 100}%`;
+  soundClipSelection.style.width = `${length / editingSoundDuration * 100}%`;
+}
+
+function setSoundClip(start, length) {
+  const normalized = normalizeSoundClip(editingSoundDuration, start, Number(start) + Number(length));
+  editingSoundStart = normalized.start;
+  editingSoundEnd = normalized.end;
+  updateSoundClipUI();
+}
+
+async function decodeSoundBlob(blob) {
+  const context = getAudioContext();
+  try {
+    return await context.decodeAudioData(await blob.arrayBuffer());
+  } catch {
+    throw new Error("无法读取该音频，请选择 M4A、MP3 或 WAV 文件");
+  }
+}
+
+function configureSoundClip(buffer, start, end) {
+  if (!Number.isFinite(buffer?.duration) || buffer.duration < MIN_SOUND_CLIP_SECONDS) {
+    throw new Error("音频至少需要 1 秒");
+  }
+  editingSoundBuffer = buffer;
+  editingSoundDuration = buffer.duration;
+  const clip = normalizeSoundClip(buffer.duration, start, end);
+  editingSoundStart = clip.start;
+  editingSoundEnd = clip.end;
+  soundClipEditor.hidden = false;
+  updateSoundClipUI();
+  requestAnimationFrame(() => drawSoundWaveform(buffer));
+}
+
+async function loadSoundClipEditor(assetID) {
+  const asset = await getAsset(assetID);
+  if (!asset?.blob) throw new Error("找不到本地音频，请重新选择文件");
+  let buffer = decodedAudioBuffers.get(assetID);
+  if (!buffer) {
+    buffer = await decodeSoundBlob(asset.blob);
+    decodedAudioBuffers.set(assetID, buffer);
+  }
+  configureSoundClip(buffer, editingSoundStart, editingSoundEnd);
+  customSoundStatus.textContent = `已选择：${asset.name} · 总长 ${formatSoundTime(buffer.duration)}`;
+}
+
 repeatTypeInput.addEventListener("change", () => { updateConditionalFields(); updatePreview(); });
 alarmSoundInput.addEventListener("change", () => { updateConditionalFields(); updatePreview(); });
 customSoundFileInput.addEventListener("change", async () => {
   const file = customSoundFileInput.files?.[0];
   if (!file) return;
-  if (!file.type.startsWith("audio/")) {
-    customSoundStatus.textContent = "请选择有效的音频文件。";
-    customSoundFileInput.value = "";
-    return;
-  }
   if (file.size > MAX_SOUND_BYTES) {
     customSoundStatus.textContent = "音频超过 12 MB，请选择更小的文件。";
     customSoundFileInput.value = "";
     return;
   }
   try {
+    customSoundStatus.textContent = "正在读取音频…";
+    const buffer = await decodeSoundBlob(file);
     const id = `sound-${createID()}`;
-    await putAsset({ id, kind: "sound", name: file.name, type: file.type, blob: file });
+    await putAsset({ id, kind: "sound", name: file.name, type: file.type || "application/octet-stream", duration: buffer.duration, blob: file });
+    decodedAudioBuffers.set(id, buffer);
     editingSoundAssetID = id;
     editingSoundName = file.name;
-    customSoundStatus.textContent = `已选择：${file.name}`;
+    configureSoundClip(buffer, 0, Math.min(DEFAULT_SOUND_CLIP_SECONDS, buffer.duration));
+    customSoundStatus.textContent = `已选择：${file.name} · 总长 ${formatSoundTime(buffer.duration)}`;
     updatePreview();
   } catch (error) {
     customSoundStatus.textContent = error.message || "无法保存这个音频文件。";
+    soundClipEditor.hidden = !editingSoundDuration;
+    customSoundFileInput.value = "";
   }
 });
+soundClipStartInput.addEventListener("input", () => {
+  setSoundClip(Number(soundClipStartInput.value), editingSoundEnd - editingSoundStart);
+});
+soundClipDurationInput.addEventListener("input", () => {
+  setSoundClip(editingSoundStart, Number(soundClipDurationInput.value));
+});
+window.addEventListener("resize", () => { if (editingSoundBuffer) drawSoundWaveform(editingSoundBuffer); });
 [timeInput, startDateInput, intervalDaysInput, workDaysInput, restDaysInput, snoozeMinutesInput].forEach(input => input.addEventListener("input", updatePreview));
 snoozeEnabledInput.addEventListener("change", () => { snoozeMinutesRow.hidden = !snoozeEnabledInput.checked; });
 
@@ -902,11 +1046,15 @@ let activeRingingAlarm;
 let remindersEnabled = false;
 const firedOccurrences = new Set();
 
-function ensureAudio() {
+function getAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) throw new Error("当前浏览器不支持网页声音");
   audioContext ??= new AudioContextClass();
-  return audioContext.resume();
+  return audioContext;
+}
+
+function ensureAudio() {
+  return getAudioContext().resume();
 }
 
 /** Plays an original, short synthesized pattern without shipping copyrighted audio files. */
@@ -933,20 +1081,29 @@ function stopCustomAudio() {
   customAudioSource = undefined;
 }
 
-async function playCustomAudio(assetID, shouldLoop) {
+async function playCustomAudio(assetID, shouldLoop, clipStart = 0, clipEnd) {
   if (!assetID) throw new Error("请重新选择本地音频文件");
   const asset = await getAsset(assetID);
   if (!asset?.blob) throw new Error("找不到本地音频，请重新选择文件");
   await ensureAudio();
-  const buffer = await audioContext.decodeAudioData(await asset.blob.arrayBuffer());
+  let buffer = decodedAudioBuffers.get(assetID);
+  if (!buffer) {
+    buffer = await decodeSoundBlob(asset.blob);
+    decodedAudioBuffers.set(assetID, buffer);
+  }
+  const clip = normalizeSoundClip(buffer.duration, clipStart, clipEnd);
+  const clipDuration = clip.end - clip.start;
   stopCustomAudio();
   const source = audioContext.createBufferSource();
   source.buffer = buffer;
   source.loop = shouldLoop;
+  source.loopStart = clip.start;
+  source.loopEnd = clip.end;
   source.connect(audioContext.destination);
-  source.start();
+  if (shouldLoop) source.start(0, clip.start); else source.start(0, clip.start, clipDuration);
   customAudioSource = source;
   source.addEventListener("ended", () => { if (customAudioSource === source) customAudioSource = undefined; });
+  return { source, duration: clipDuration };
 }
 
 async function showWebNotification(alarm) {
@@ -975,7 +1132,7 @@ async function triggerRinging(alarm) {
     clearInterval(soundTimer);
     soundTimer = undefined;
     if (alarm.sound === "custom") {
-      await playCustomAudio(alarm.soundAssetID, true);
+      await playCustomAudio(alarm.soundAssetID, true, alarm.soundStart, alarm.soundEnd);
     } else {
       stopCustomAudio();
       soundPulse(alarm.sound);
@@ -1040,13 +1197,19 @@ previewSoundButton.addEventListener("click", async () => {
   await armPageReminders(false).catch(() => {});
   try {
     clearInterval(soundTimer);
-    if (alarmSoundInput.value === "custom") await playCustomAudio(editingSoundAssetID, false);
-    else { stopCustomAudio(); soundPulse(alarmSoundInput.value); }
+    if (alarmSoundInput.value === "custom") {
+      const playback = await playCustomAudio(editingSoundAssetID, false, editingSoundStart, editingSoundEnd);
+      previewSoundButton.textContent = `正在试听 ${formatSoundTime(editingSoundStart)}–${formatSoundTime(editingSoundEnd)}`;
+      playback.source.addEventListener("ended", () => { previewSoundButton.textContent = "试听所选片段"; }, { once: true });
+      return;
+    }
+    stopCustomAudio();
+    soundPulse(alarmSoundInput.value);
   } catch (error) {
     customSoundStatus.textContent = error.message || "无法播放这个音频文件。";
     return;
   }
-  previewSoundButton.textContent = `正在试听：${alarmSoundInput.value === "custom" ? editingSoundName || "本地音频" : soundOption(alarmSoundInput.value).title}`;
+  previewSoundButton.textContent = `正在试听：${soundOption(alarmSoundInput.value).title}`;
   setTimeout(() => { previewSoundButton.textContent = "试听当前铃声"; }, 1800);
 });
 testReminderButton.addEventListener("click", async () => {

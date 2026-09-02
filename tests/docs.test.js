@@ -5,10 +5,11 @@ import { readFile } from "node:fs/promises";
 const read = path => readFile(new URL(path, import.meta.url), "utf8");
 
 test("published app contains the essential iPhone workflow and interaction guards", async () => {
-  const [index, template, help, changelog, guide, serviceWorker, app, styles, readme, build] = await Promise.all([
+  const [index, template, help, soundGuide, changelog, guide, serviceWorker, app, styles, readme, build] = await Promise.all([
     read("../index.html"),
     read("../index.template.html"),
     read("../help.html"),
+    read("../sound-guide.html"),
     read("../changelog.html"),
     read("../USER_GUIDE.md"),
     read("../sw.js"),
@@ -23,13 +24,16 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(index, /<script data-build="inline">/);
   assert.doesNotMatch(index, /<link rel="stylesheet"/);
   assert.doesNotMatch(index, /src="app\.bundle\.js/);
-  assert.match(template, /styles\.css\?v=17/);
-  assert.match(template, /app\.bundle\.js\?v=17/);
+  assert.match(template, /styles\.css\?v=18/);
+  assert.match(template, /app\.bundle\.js\?v=18/);
   assert.match(template, /id="open-personalization"[^>]*>壁纸设置<\/button>/);
   assert.match(template, /id="background-opacity"[^>]*max="100"/);
   assert.match(template, /id="background-fit"/);
   assert.match(template, /id="background-fit-trigger"/);
   assert.match(template, /class="wallpaper-fit-option"/);
+  assert.match(template, /id="sound-clip-editor"/);
+  assert.match(template, /id="sound-clip-start"/);
+  assert.match(template, /id="sound-clip-duration"/);
   assert.match(template, /使用说明<\/a>\s*<a[^>]*href="changelog\.html"[^>]*>更新日志<\/a>\s*<button id="share-app"/);
   assert.match(build, /Inline render-blocking assets/);
   assert.doesNotMatch(index, /id="install-app"/);
@@ -60,7 +64,13 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(help, /再点一次可关闭提醒/);
   assert.match(help, /iPhone 自带“时钟”/);
   assert.match(help, /class="guide-back-icon"/);
+  assert.match(help, /href="sound-guide\.html"/);
+  assert.match(soundGuide, /语音备忘录/);
+  assert.match(soundGuide, /M4A\/AAC、MP3 和 WAV/);
+  assert.match(soundGuide, /1–60 秒/);
+  assert.match(soundGuide, /support\.apple\.com/);
   assert.match(changelog, /<h1>更新日志<\/h1>/);
+  assert.match(changelog, /<h2>V18<\/h2>/);
   assert.match(changelog, /<h2>V17<\/h2>/);
   assert.match(changelog, /v17\.0\.0/);
   assert.doesNotMatch(readme, /CHANGELOG\.md/);
@@ -70,9 +80,10 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(guide, /红色垃圾桶/);
   assert.match(guide, /再点一次“已启用”可关闭提醒/);
 
-  assert.match(serviceWorker, /personalized-clock-v17/);
+  assert.match(serviceWorker, /personalized-clock-v18/);
   assert.match(serviceWorker, /\.\/help\.html/);
   assert.match(serviceWorker, /\.\/changelog\.html/);
+  assert.match(serviceWorker, /\.\/sound-guide\.html/);
   assert.match(app, /nextOverview\.hidden = true/);
   assert.match(app, /dialog\.focus\(\{ preventScroll: true \}\)/);
   assert.match(app, /hour >= 5 && hour < 12 \? "早上好"/);
@@ -87,6 +98,10 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(app, /calendarGesture\.lastValue/);
   assert.match(app, /本地音频不可用 · 已改用晨光/);
   assert.match(app, /indexedDB\.open\(ASSET_DB_NAME, 1\)/);
+  assert.match(app, /DEFAULT_SOUND_CLIP_SECONDS = 30/);
+  assert.match(app, /MAX_SOUND_CLIP_SECONDS = 60/);
+  assert.match(app, /source\.loopStart = clip\.start/);
+  assert.match(app, /source\.loopEnd = clip\.end/);
   assert.match(app, /version: 2/);
   assert.match(app, /backgroundFitInput\.addEventListener\("change"/);
   assert.match(app, /backgroundFitTrigger\.addEventListener\("click"/);

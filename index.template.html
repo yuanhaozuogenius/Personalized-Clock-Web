@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="styles.css?v=18">
 </head>
 <body>
   <div id="custom-background" class="custom-background" aria-hidden="true"></div>
@@ -92,8 +92,15 @@
             <option value="custom">本地音频文件</option>
           </select></label>
           <div id="custom-sound-fields" class="custom-file-fields" hidden>
-            <label class="file-picker">选择本地音频<input id="custom-sound-file" type="file" accept="audio/*"></label>
-            <p id="custom-sound-status" class="field-help">支持手机“文件”中的音频，最大 12 MB。</p>
+            <label class="file-picker">选择音频文件<input id="custom-sound-file" type="file" accept=".m4a,.mp3,.wav,.aac,audio/*"></label>
+            <p id="custom-sound-status" class="field-help" role="status">支持 M4A（语音备忘录）、MP3、WAV 等常见音频，最大 12 MB。</p>
+            <section id="sound-clip-editor" class="sound-clip-editor" aria-labelledby="sound-clip-title" hidden>
+              <div class="sound-clip-heading"><strong id="sound-clip-title">选择响铃片段</strong><output id="sound-clip-summary">00:00–00:30 · 30 秒</output></div>
+              <div class="sound-waveform" aria-hidden="true"><canvas id="sound-waveform"></canvas><span id="sound-clip-selection" class="sound-clip-selection"></span></div>
+              <label class="sound-clip-control"><span>开始位置</span><input id="sound-clip-start" type="range" min="0" max="0" step="1" value="0"><output id="sound-clip-start-value">00:00</output></label>
+              <label class="sound-clip-control"><span>片段时长</span><input id="sound-clip-duration" type="range" min="1" max="30" step="1" value="30"><output id="sound-clip-duration-value">30 秒</output></label>
+              <p class="field-help">默认 30 秒，可调整为 1–60 秒；试听和响铃只播放所选片段。</p>
+            </section>
           </div>
           <button id="preview-sound" class="inline-action" type="button">试听当前铃声</button>
         </section>        <section class="form-card snooze-settings">
@@ -144,6 +151,6 @@
       <div class="ringing-actions"><button id="snooze-alarm" type="button">稍后提醒</button><button id="stop-alarm" type="button">停止</button></div>
     </div>
   </section>
-  <script defer src="app.bundle.js?v=17"></script>
+  <script defer src="app.bundle.js?v=18"></script>
 </body>
 </html>
