@@ -1,5 +1,5 @@
-const CACHE_NAME = "personalized-clock-v15";
-const APP_FILES = ["./", "./index.html", "./help.html", "./styles.css?v=15", "./app.bundle.js?v=15", "./manifest.webmanifest", "./icon.svg"];
+const CACHE_NAME = "personalized-clock-v16";
+const APP_FILES = ["./", "./index.html", "./help.html", "./styles.css?v=16", "./app.bundle.js?v=16", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));

@@ -121,6 +121,7 @@ const closePersonalizationButton = $("#close-personalization");
 const backgroundFileInput = $("#background-file");
 const backgroundOpacityInput = $("#background-opacity");
 const backgroundOpacityValue = $("#background-opacity-value");
+const backgroundFitInput = $("#background-fit");
 const backgroundPreview = $("#background-preview");
 const backgroundStatus = $("#background-status");
 const removeBackgroundButton = $("#remove-background");
@@ -168,21 +169,36 @@ function createID() { return crypto.randomUUID?.() ?? `${Date.now()}-${Math.rand
 function loadPersonalization() {
   try {
     const value = JSON.parse(localStorage.getItem(PERSONALIZATION_KEY));
-    return { assetID: value?.assetID, opacity: Math.min(45, Math.max(8, Number(value?.opacity) || 18)) };
-  } catch { return { assetID: undefined, opacity: 18 }; }
+    const storedOpacity = Number(value?.opacity);
+    // V1 limited photo opacity to 45%. Map that range into the more useful
+    // V2 intensity range so existing wallpapers become visible after upgrade.
+    const migratedOpacity = value?.version === 2
+      ? storedOpacity
+      : Number.isFinite(storedOpacity) && storedOpacity > 0
+        ? Math.round(45 + Math.min(45, Math.max(8, storedOpacity)) / 45 * 55)
+        : 65;
+    return {
+      assetID: value?.assetID,
+      opacity: Math.min(100, Math.max(10, migratedOpacity || 65)),
+      fit: value?.fit === "contain" ? "contain" : "cover"
+    };
+  } catch { return { assetID: undefined, opacity: 65, fit: "cover" }; }
 }
 
 function savePersonalization(value) {
-  localStorage.setItem(PERSONALIZATION_KEY, JSON.stringify(value));
+  localStorage.setItem(PERSONALIZATION_KEY, JSON.stringify({ ...value, version: 2 }));
 }
 
 async function applyPersonalization() {
   const settings = loadPersonalization();
   backgroundOpacityInput.value = settings.opacity;
   backgroundOpacityValue.textContent = `${settings.opacity}%`;
+  backgroundFitInput.value = settings.fit;
   removeBackgroundButton.disabled = !settings.assetID;
   customBackground.style.opacity = String(settings.opacity / 100);
   backgroundPreview.style.opacity = String(settings.opacity / 100);
+  customBackground.style.backgroundSize = settings.fit;
+  backgroundPreview.style.backgroundSize = settings.fit;
   if (backgroundObjectURL) URL.revokeObjectURL(backgroundObjectURL);
   backgroundObjectURL = undefined;
   customBackground.style.backgroundImage = "";
@@ -635,6 +651,12 @@ backgroundOpacityInput.addEventListener("input", () => {
   const settings = loadPersonalization();
   savePersonalization({ ...settings, opacity });
 });
+backgroundFitInput.addEventListener("change", () => {
+  const fit = backgroundFitInput.value === "contain" ? "contain" : "cover";
+  customBackground.style.backgroundSize = fit;
+  backgroundPreview.style.backgroundSize = fit;
+  savePersonalization({ ...loadPersonalization(), fit });
+});
 backgroundFileInput.addEventListener("change", async () => {
   const file = backgroundFileInput.files?.[0];
   if (!file) return;
@@ -651,7 +673,7 @@ backgroundFileInput.addEventListener("change", async () => {
   try {
     const assetID = "background-image";
     await putAsset({ id: assetID, kind: "image", name: file.name, type: file.type, blob: file });
-    savePersonalization({ assetID, opacity: Number(backgroundOpacityInput.value) });
+    savePersonalization({ ...loadPersonalization(), assetID, opacity: Number(backgroundOpacityInput.value), fit: backgroundFitInput.value });
     backgroundStatus.textContent = `已使用：${file.name}`;
     await applyPersonalization();
   } catch (error) {
@@ -660,7 +682,7 @@ backgroundFileInput.addEventListener("change", async () => {
 });
 removeBackgroundButton.addEventListener("click", async () => {
   try { await deleteAsset("background-image"); } catch { /* Clearing settings still removes the visible background. */ }
-  savePersonalization({ opacity: Number(backgroundOpacityInput.value) });
+  savePersonalization({ ...loadPersonalization(), assetID: undefined, opacity: Number(backgroundOpacityInput.value), fit: backgroundFitInput.value });
   backgroundFileInput.value = "";
   backgroundStatus.textContent = "已移除背景照片。";
   await applyPersonalization();

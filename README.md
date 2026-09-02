@@ -12,7 +12,7 @@
 - 本地闹钟增删改、向左滑动删除、开关和下一次日期计算
 - 可开关的页面提醒、默认 5 分钟的可配置持久化稍后提醒
 - 晨光、清泉、微风、经典四套原创 Web Audio 铃声，以及最大 12 MB 的本地音频
-- 本地照片背景、8%–45% 透明度调节和一键移除
+- 本地照片壁纸、10%–100% 显示强度、等比例铺满/完整显示和一键移除
 - 添加到 iPhone 主屏幕、离线缓存、分享和页面内通知
 - 随本地时间变化的问候、明暗主题及手机尺寸界面
 
@@ -51,7 +51,7 @@ node --check app.bundle.js
 |---|---|
 | `personalized-clock.alarms.v1` | 闹钟、周期、铃声和稍后提醒设置 |
 | `personalized-clock.snoozes.v1` | 等待再次响铃的稍后提醒 |
-| `personalized-clock.personalization.v1` | 背景照片引用和透明度 |
+| `personalized-clock.personalization.v1` | 壁纸照片引用、显示强度和显示方式 |
 | IndexedDB `personalized-clock-assets` | 本地铃声音频和背景照片文件 |
 
 没有账号和后端，数据不会跨设备同步。内置铃声由 Web Audio API 实时合成，不包含第三方商业音频；用户选择的本地媒体仅保存在当前浏览器。

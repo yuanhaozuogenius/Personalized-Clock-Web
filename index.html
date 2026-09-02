@@ -51,6 +51,10 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}body{-webkit-t
 /* Inline Safari control used by the concise iPhone installation guide. */
 .inline-more-icon{display:inline-grid;min-width:34px;height:22px;margin:0 3px;place-items:center;border:1px solid var(--line);border-radius:7px;background:var(--surface-solid);color:var(--text);font-size:12px;font-weight:800;letter-spacing:1px;line-height:1;vertical-align:middle}
 
+/* V16 wallpaper visibility: preserve image ratio and let it show through glass surfaces. */
+.personalization-preview>div{background-position:center;background-repeat:no-repeat}.wallpaper-fit-help{padding:0 16px 13px}.has-custom-background .app-shell{background:linear-gradient(180deg,rgba(245,246,250,.04),rgba(245,246,250,.16))}.has-custom-background .next-overview{background:rgba(14,15,19,.78);backdrop-filter:blur(15px) saturate(1.12)}.has-custom-background .reminder-card,.has-custom-background .alarm-swipe-row .alarm-card,.has-custom-background .empty-state{background:rgba(255,255,255,.68);backdrop-filter:blur(18px) saturate(1.15)}.has-custom-background .secondary-button{background:rgba(255,255,255,.7);backdrop-filter:blur(10px)}.has-custom-background .alarm-tags span{background:rgba(240,241,245,.72)}.has-custom-background .section-heading{text-shadow:0 1px 8px rgba(255,255,255,.9)}
+@media(prefers-color-scheme:dark){.has-custom-background .app-shell{background:linear-gradient(180deg,rgba(7,8,10,.05),rgba(7,8,10,.2))}.has-custom-background .reminder-card,.has-custom-background .alarm-swipe-row .alarm-card,.has-custom-background .empty-state{background:rgba(20,21,26,.7)}.has-custom-background .secondary-button{background:rgba(27,28,33,.72)}.has-custom-background .alarm-tags span{background:rgba(41,42,49,.76)}.has-custom-background .section-heading{text-shadow:0 1px 8px rgba(0,0,0,.9)}}
+
   </style>
 </head>
 <body>
@@ -83,7 +87,7 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}body{-webkit-t
       <div class="action-row">
         <button id="enable-reminders" class="secondary-button" type="button">启用提醒</button>
         <button id="test-reminder" class="secondary-button" type="button">测试响铃</button>
-        <button id="open-personalization" class="secondary-button" type="button">个性化</button>
+        <button id="open-personalization" class="secondary-button" type="button">壁纸设置</button>
         <a class="secondary-button" href="help.html">使用说明</a>
         <button id="share-app" class="secondary-button" type="button">分享</button>
       </div>
@@ -157,15 +161,17 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}body{-webkit-t
   </dialog>
 
   <dialog id="personalization-dialog" class="sheet-dialog personalization-dialog" tabindex="-1">
-    <header class="sheet-header"><button id="close-personalization" class="text-button" type="button">完成</button><h2>个性化背景</h2><span></span></header>
+    <header class="sheet-header"><button id="close-personalization" class="text-button" type="button">完成</button><h2>壁纸设置</h2><span></span></header>
     <div class="personalization-body">
       <section class="form-card">
-        <div class="personalization-preview"><div id="background-preview"></div><span>你的背景预览</span></div>
-        <label class="file-picker personalization-file">选择本地照片<input id="background-file" type="file" accept="image/*"></label>
-        <label class="form-row opacity-row"><span>照片透明度</span><input id="background-opacity" type="range" min="8" max="45" value="18"><output id="background-opacity-value">18%</output></label>
-        <button id="remove-background" class="inline-action danger-action" type="button">移除背景照片</button>
+        <div class="personalization-preview"><div id="background-preview"></div><span>壁纸预览</span></div>
+        <label class="file-picker personalization-file">选择壁纸照片<input id="background-file" type="file" accept="image/*"></label>
+        <label class="form-row opacity-row"><span>壁纸显示强度</span><input id="background-opacity" type="range" min="10" max="100" value="65"><output id="background-opacity-value">65%</output></label>
+        <label class="form-row"><span>显示方式</span><select id="background-fit"><option value="cover">铺满屏幕</option><option value="contain">完整显示</option></select></label>
+        <p class="field-help wallpaper-fit-help">两种方式都保持原图比例：铺满屏幕会裁掉部分边缘，完整显示可能留边。</p>
+        <button id="remove-background" class="inline-action danger-action" type="button">移除壁纸照片</button>
       </section>
-      <p id="background-status" class="field-help">照片只保存在当前浏览器。较低透明度能让时间与按钮保持清晰。</p>
+      <p id="background-status" class="field-help">照片只保存在当前浏览器。首页组件会自动使用半透明背景，保证壁纸可见且文字清晰。</p>
     </div>
   </dialog>
 
@@ -445,6 +451,7 @@ const closePersonalizationButton = $("#close-personalization");
 const backgroundFileInput = $("#background-file");
 const backgroundOpacityInput = $("#background-opacity");
 const backgroundOpacityValue = $("#background-opacity-value");
+const backgroundFitInput = $("#background-fit");
 const backgroundPreview = $("#background-preview");
 const backgroundStatus = $("#background-status");
 const removeBackgroundButton = $("#remove-background");
@@ -492,21 +499,36 @@ function createID() { return crypto.randomUUID?.() ?? `${Date.now()}-${Math.rand
 function loadPersonalization() {
   try {
     const value = JSON.parse(localStorage.getItem(PERSONALIZATION_KEY));
-    return { assetID: value?.assetID, opacity: Math.min(45, Math.max(8, Number(value?.opacity) || 18)) };
-  } catch { return { assetID: undefined, opacity: 18 }; }
+    const storedOpacity = Number(value?.opacity);
+    // V1 limited photo opacity to 45%. Map that range into the more useful
+    // V2 intensity range so existing wallpapers become visible after upgrade.
+    const migratedOpacity = value?.version === 2
+      ? storedOpacity
+      : Number.isFinite(storedOpacity) && storedOpacity > 0
+        ? Math.round(45 + Math.min(45, Math.max(8, storedOpacity)) / 45 * 55)
+        : 65;
+    return {
+      assetID: value?.assetID,
+      opacity: Math.min(100, Math.max(10, migratedOpacity || 65)),
+      fit: value?.fit === "contain" ? "contain" : "cover"
+    };
+  } catch { return { assetID: undefined, opacity: 65, fit: "cover" }; }
 }
 
 function savePersonalization(value) {
-  localStorage.setItem(PERSONALIZATION_KEY, JSON.stringify(value));
+  localStorage.setItem(PERSONALIZATION_KEY, JSON.stringify({ ...value, version: 2 }));
 }
 
 async function applyPersonalization() {
   const settings = loadPersonalization();
   backgroundOpacityInput.value = settings.opacity;
   backgroundOpacityValue.textContent = `${settings.opacity}%`;
+  backgroundFitInput.value = settings.fit;
   removeBackgroundButton.disabled = !settings.assetID;
   customBackground.style.opacity = String(settings.opacity / 100);
   backgroundPreview.style.opacity = String(settings.opacity / 100);
+  customBackground.style.backgroundSize = settings.fit;
+  backgroundPreview.style.backgroundSize = settings.fit;
   if (backgroundObjectURL) URL.revokeObjectURL(backgroundObjectURL);
   backgroundObjectURL = undefined;
   customBackground.style.backgroundImage = "";
@@ -959,6 +981,12 @@ backgroundOpacityInput.addEventListener("input", () => {
   const settings = loadPersonalization();
   savePersonalization({ ...settings, opacity });
 });
+backgroundFitInput.addEventListener("change", () => {
+  const fit = backgroundFitInput.value === "contain" ? "contain" : "cover";
+  customBackground.style.backgroundSize = fit;
+  backgroundPreview.style.backgroundSize = fit;
+  savePersonalization({ ...loadPersonalization(), fit });
+});
 backgroundFileInput.addEventListener("change", async () => {
   const file = backgroundFileInput.files?.[0];
   if (!file) return;
@@ -975,7 +1003,7 @@ backgroundFileInput.addEventListener("change", async () => {
   try {
     const assetID = "background-image";
     await putAsset({ id: assetID, kind: "image", name: file.name, type: file.type, blob: file });
-    savePersonalization({ assetID, opacity: Number(backgroundOpacityInput.value) });
+    savePersonalization({ ...loadPersonalization(), assetID, opacity: Number(backgroundOpacityInput.value), fit: backgroundFitInput.value });
     backgroundStatus.textContent = `已使用：${file.name}`;
     await applyPersonalization();
   } catch (error) {
@@ -984,7 +1012,7 @@ backgroundFileInput.addEventListener("change", async () => {
 });
 removeBackgroundButton.addEventListener("click", async () => {
   try { await deleteAsset("background-image"); } catch { /* Clearing settings still removes the visible background. */ }
-  savePersonalization({ opacity: Number(backgroundOpacityInput.value) });
+  savePersonalization({ ...loadPersonalization(), assetID: undefined, opacity: Number(backgroundOpacityInput.value), fit: backgroundFitInput.value });
   backgroundFileInput.value = "";
   backgroundStatus.textContent = "已移除背景照片。";
   await applyPersonalization();

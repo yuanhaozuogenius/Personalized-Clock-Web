@@ -126,6 +126,11 @@ def main():
     wait_for(cdp, "document.readyState === 'complete'")
     cdp.evaluate("localStorage.clear(); location.reload()")
     wait_for(cdp, "document.readyState === 'complete'")
+    cdp.evaluate("localStorage.setItem('personalized-clock.personalization.v1', JSON.stringify({opacity:45})); location.reload()")
+    wait_for(cdp, "document.readyState === 'complete'")
+    assert cdp.evaluate("document.querySelector('#background-opacity').value === '100'")
+    cdp.evaluate("localStorage.removeItem('personalized-clock.personalization.v1'); location.reload()")
+    wait_for(cdp, "document.readyState === 'complete'")
     assert cdp.evaluate("document.querySelector('.next-overview').hidden === true")
     assert cdp.evaluate("document.querySelector('#next-alarm-time').textContent === ''")
     assert cdp.evaluate("document.querySelector('.overview-illustration svg') !== null")
@@ -135,6 +140,7 @@ def main():
     assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<12?'早上好':hour>=12&&hour<18?'下午好':'晚上好'; return document.querySelector('#greeting-title').textContent===expected; })()")
     assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<18?'day':'night'; return document.querySelector('#greeting-symbol').dataset.period===expected; })()")
     assert cdp.evaluate("document.querySelector('.reminder-card strong').textContent === '响铃设置'")
+    assert cdp.evaluate("document.querySelector('#open-personalization').textContent === '壁纸设置'")
     assert cdp.evaluate("[...document.querySelector('.action-row').children].slice(-2).map(item=>item.textContent.trim()).join('|') === '使用说明|分享'")
     assert cdp.evaluate("document.querySelector('style[data-build=inline]') !== null && document.querySelector('script[data-build=inline]') !== null")
     assert cdp.evaluate("document.querySelector('meta[name=viewport]').content.includes('user-scalable=no')")
@@ -191,13 +197,20 @@ def main():
       (() => {
         document.querySelector('#open-personalization').click();
         const transfer=new DataTransfer();
-        transfer.items.add(new File(['<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="orange"/></svg>'],'background.svg',{type:'image/svg+xml'}));
+        transfer.items.add(new File(['<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#172554"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs><rect width="800" height="400" fill="url(#g)"/><circle cx="650" cy="105" r="72" fill="#fef3c7"/><path d="M0 340L210 175l135 105 120-90L800 400H0z" fill="#14532d"/></svg>'],'background.svg',{type:'image/svg+xml'}));
         const input=document.querySelector('#background-file'); input.files=transfer.files; input.dispatchEvent(new Event('change',{bubbles:true}));
       })()
     """)
     wait_for(cdp, "document.body.classList.contains('has-custom-background')")
-    cdp.evaluate("const input=document.querySelector('#background-opacity'); input.value='30'; input.dispatchEvent(new Event('input',{bubbles:true}));")
-    assert cdp.evaluate("JSON.parse(localStorage.getItem('personalized-clock.personalization.v1')).opacity === 30")
+    assert cdp.evaluate("document.querySelector('#background-opacity').max === '100'")
+    cdp.evaluate("const input=document.querySelector('#background-opacity'); input.value='100'; input.dispatchEvent(new Event('input',{bubbles:true})); const fit=document.querySelector('#background-fit'); fit.value='contain'; fit.dispatchEvent(new Event('change',{bubbles:true}));")
+    assert cdp.evaluate("(() => { const value=JSON.parse(localStorage.getItem('personalized-clock.personalization.v1')); return value.opacity===100 && value.fit==='contain' && value.version===2; })()")
+    assert cdp.evaluate("document.querySelector('#custom-background').style.backgroundSize === 'contain'")
+    assert cdp.evaluate("getComputedStyle(document.querySelector('.alarm-card')).backgroundColor.includes('0.68')")
+    wallpaper_screenshot = cdp.call("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": False})
+    screenshot_path = Path(args.screenshot)
+    wallpaper_path = screenshot_path.with_name(f"{screenshot_path.stem}-wallpaper{screenshot_path.suffix}")
+    wallpaper_path.write_bytes(base64.b64decode(wallpaper_screenshot["data"]))
     cdp.evaluate("document.querySelector('#remove-background').click(); document.querySelector('#close-personalization').click()")
     wait_for(cdp, "!document.body.classList.contains('has-custom-background')")
 
