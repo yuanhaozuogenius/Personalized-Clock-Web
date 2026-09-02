@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2f7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>个性闹钟</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css?v=13">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="top-bar">
+      <div class="greeting-row"><h1 id="greeting-title">你好</h1><span id="greeting-symbol" class="greeting-symbol" data-period="day" aria-hidden="true">
+        <svg class="greeting-sun" viewBox="0 0 32 32"><circle cx="16" cy="16" r="6"/><path d="M16 3v4m0 18v4M3 16h4m18 0h4M6.8 6.8l2.8 2.8m12.8 12.8 2.8 2.8m0-18.4-2.8 2.8M9.6 22.4l-2.8 2.8"/></svg>
+        <svg class="greeting-moon" viewBox="0 0 32 32"><path d="M24.8 21.2A11 11 0 0 1 10.8 7.2 11 11 0 1 0 24.8 21.2Z"/></svg>
+      </span></div>
+      <div class="top-actions"><a class="help-button" href="help.html" aria-label="使用说明">?</a><button id="add-alarm" class="icon-button" type="button" aria-label="添加闹钟">＋</button></div>
+    </header>
+    <section class="next-overview" aria-label="下一次响铃" hidden>
+      <div><span>下一次响铃</span><strong id="next-alarm-time"></strong><p id="next-alarm-label"></p></div>
+      <div class="overview-illustration" aria-hidden="true">
+        <svg viewBox="0 0 100 100" role="img">
+          <defs><linearGradient id="alarm-face" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffbd4a"/><stop offset="1" stop-color="#ff8500"/></linearGradient></defs>
+          <path class="alarm-bells" d="M20 31 12 21c7-7 15-9 23-3M80 31l8-10c-7-7-15-9-23-3"/>
+          <circle class="alarm-face" cx="50" cy="55" r="31"/>
+          <path class="alarm-ticks" d="M50 29v4M76 55h-4M50 81v-4M24 55h4"/>
+          <path class="alarm-hands" d="M50 36v20l14 8"/>
+          <circle class="alarm-pin" cx="50" cy="55" r="3.5"/>
+          <path class="alarm-feet" d="m31 81-7 9m45-9 7 9"/>
+        </svg>
+      </div>
+    </section>
+
+    <section class="reminder-card" aria-label="响铃设置">
+      <div><strong>响铃设置</strong><p id="reminder-status">请先启用提醒并测试声音</p><div id="snooze-summary" class="snooze-summary" hidden><span id="snooze-status"></span><button id="cancel-snooze" type="button">取消</button></div></div>
+      <div class="action-row">
+        <button id="enable-reminders" class="secondary-button" type="button">启用提醒</button>
+        <button id="test-reminder" class="secondary-button" type="button">测试响铃</button>
+        <a class="secondary-button" href="help.html">使用说明</a>
+        <button id="share-app" class="secondary-button" type="button">分享</button>
+      </div>
+    </section>
+    <div class="section-heading"><h2>我的闹钟</h2><span id="alarm-count">0 个</span></div>
+    <section id="alarm-list" class="alarm-list" aria-live="polite"></section>
+  </main>
+
+  <dialog id="alarm-editor" class="editor-dialog" tabindex="-1">
+    <form id="alarm-form" class="editor-form">
+      <header class="editor-header">
+        <button id="cancel-edit" class="text-button" type="button">取消</button>
+        <h2>编辑闹钟</h2>
+        <button class="text-button strong" type="submit">存储</button>
+      </header>
+      <div class="editor-body">
+        <label class="time-field"><span class="sr-only">时间</span><input id="alarm-time" type="time" required></label>
+        <section class="form-card">
+          <label class="form-row"><span>重复</span><select id="repeat-type">
+            <option value="once">仅一次</option><option value="daily">每天</option>
+            <option value="weekdays">工作日</option><option value="weekends">周末</option>
+            <option value="selectedWeekdays">指定星期</option><option value="intervalDays">每隔 X 天</option>
+            <option value="workRest">轮班循环</option>
+          </select></label>
+          <label id="start-date-row" class="form-row"><span>开始日期</span><input id="start-date" type="date" required></label>
+          <label class="form-row"><span>标签</span><input id="alarm-label" type="text" maxlength="40" placeholder="闹钟"></label>
+        </section>
+        <section id="weekday-fields" class="form-section" hidden><h3>指定星期</h3><div id="weekday-buttons" class="weekday-buttons"></div></section>
+        <section id="interval-fields" class="form-card" hidden><label class="form-row"><span>每隔</span><span><input id="interval-days" type="number" min="1" max="10000" inputmode="numeric" value="2"> 天</span></label></section>
+        <section id="work-rest-fields" class="form-card" hidden>
+          <label class="form-row"><span>连续响铃</span><span><input id="work-days" type="number" min="1" max="10000" inputmode="numeric" value="2"> 天</span></label>
+          <label class="form-row"><span>停止响铃</span><span><input id="rest-days" type="number" min="1" max="10000" inputmode="numeric" value="2"> 天</span></label>
+          <p class="field-help">例如上二休二：连续响铃 2 天，停止响铃 2 天。</p>
+        </section>
+        <section class="form-card sound-settings">
+          <label class="form-row"><span>铃声</span><select id="alarm-sound">
+            <option value="dawn">晨光 · 渐进和弦</option>
+            <option value="spring">清泉 · 清亮钟音</option>
+            <option value="breeze">微风 · 柔和琶音</option>
+            <option value="classic">经典 · 清晰双音</option>
+          </select></label>
+          <button id="preview-sound" class="inline-action" type="button">试听当前铃声</button>
+        </section>        <section class="form-card snooze-settings">
+          <label class="form-row"><span>稍后提醒</span><input id="snooze-enabled" type="checkbox" checked></label>
+          <label id="snooze-minutes-row" class="form-row"><span>提醒间隔</span><span><input id="snooze-minutes" type="number" min="1" max="60" inputmode="numeric" value="5"> 分钟</span></label>
+        </section>        <section class="form-section"><h3>接下来</h3><ol id="date-preview" class="date-preview"></ol><p id="validation-message" class="validation-message" role="alert"></p></section>
+        <button id="delete-alarm" class="delete-button" type="button" hidden>删除闹钟</button>
+      </div>
+    </form>
+  </dialog>
+
+  <section id="ringing-overlay" class="ringing-overlay" hidden>
+    <div class="ringing-content"><div class="ring-orbit" aria-hidden="true"><span></span><span></span><span></span></div><p id="ringing-time" class="ringing-time"></p><h2 id="ringing-label">闹钟</h2><p id="ringing-sound">网页提醒正在响铃</p>
+      <div class="ringing-actions"><button id="snooze-alarm" type="button">稍后提醒</button><button id="stop-alarm" type="button">停止</button></div>
+    </div>
+  </section>
+  <script defer src="app.bundle.js?v=13"></script>
+</body>
+</html>

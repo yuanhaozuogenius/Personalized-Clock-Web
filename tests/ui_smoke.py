@@ -108,11 +108,15 @@ def main():
     parser.add_argument("--url", default="http://127.0.0.1:4173/")
     parser.add_argument("--screenshot", required=True)
     parser.add_argument("--skip-service-worker", action="store_true")
+    parser.add_argument("--block-runtime-assets", action="store_true")
     args = parser.parse_args()
 
     cdp = CDP(args.endpoint)
     cdp.call("Page.enable")
     cdp.call("Runtime.enable")
+    if args.block_runtime_assets:
+        cdp.call("Network.enable")
+        cdp.call("Network.setBlockedURLs", {"urls": ["*styles.css*", "*app.bundle.js*"]})
     cdp.call("Page.bringToFront")
     cdp.call("Emulation.setDeviceMetricsOverride", {
         "width": 390, "height": 844, "deviceScaleFactor": 2, "mobile": True
@@ -131,6 +135,8 @@ def main():
     assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<12?'早上好':hour>=12&&hour<18?'下午好':'晚上好'; return document.querySelector('#greeting-title').textContent===expected; })()")
     assert cdp.evaluate("(() => { const hour=new Date().getHours(); const expected=hour>=5&&hour<18?'day':'night'; return document.querySelector('#greeting-symbol').dataset.period===expected; })()")
     assert cdp.evaluate("document.querySelector('.reminder-card strong').textContent === '响铃设置'")
+    assert cdp.evaluate("[...document.querySelector('.action-row').children].slice(-2).map(item=>item.textContent.trim()).join('|') === '使用说明|分享'")
+    assert cdp.evaluate("document.querySelector('style[data-build=inline]') !== null && document.querySelector('script[data-build=inline]') !== null")
     assert cdp.evaluate("document.querySelector('meta[name=viewport]').content.includes('user-scalable=no')")
     initial_scale = cdp.evaluate("visualViewport.scale")
     for _ in range(2):
@@ -150,6 +156,7 @@ def main():
     fill_alarm(cdp, "测试间隔", "intervalDays", "document.querySelector('#interval-days').value='3'; document.querySelector('#interval-days').dispatchEvent(new Event('input',{bubbles:true}));")
     assert cdp.evaluate("document.querySelector('.next-overview').hidden === false")
     assert cdp.evaluate("document.querySelector('.alarm-card').textContent.includes('每隔 3 天')")
+    assert cdp.evaluate("(() => { const track=document.querySelector('.switch span'); const thumb=getComputedStyle(track,'::after'); return thumb.position==='absolute' && Math.abs(parseFloat(thumb.top)-track.clientHeight/2)<0.1 && thumb.marginTop==='0px' && thumb.transform.includes('-13.5'); })()")
     assert cdp.evaluate("document.querySelector('#enable-reminders').dataset.enabled === 'true'")
     cdp.evaluate("document.querySelector('#enable-reminders').click()")
     wait_for(cdp, "document.querySelector('#enable-reminders').dataset.enabled === 'false' && document.querySelector('#enable-reminders').textContent === '启用提醒'")

@@ -10,7 +10,40 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=12">
+  <style data-build="inline">
+:root{color-scheme:light dark;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;background:#f2f2f7;color:#111114}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f2f2f7}button,input,select{font:inherit}.app-shell{width:min(100%,680px);min-height:100vh;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom))}.top-bar{display:flex;align-items:end;justify-content:space-between;margin-bottom:18px}.eyebrow{margin:0 0 3px;color:#8e8e93;font-size:11px;font-weight:700;letter-spacing:.12em}h1{margin:0;font-size:36px;line-height:1;letter-spacing:-.04em}.icon-button{width:42px;height:42px;border:0;border-radius:50%;background:#ff9f0a;color:#fff;font-size:29px;line-height:1;cursor:pointer}.notice{padding:15px 16px;border-radius:16px;background:#fff;box-shadow:0 8px 30px rgba(0,0,0,.04)}.notice strong{font-size:15px}.notice p{margin:6px 0 0;color:#6d6d72;font-size:13px;line-height:1.45}.alarm-list{margin-top:18px}.alarm-card{display:grid;grid-template-columns:1fr auto;gap:10px 14px;padding:18px 16px;border-bottom:1px solid #dedee3;cursor:pointer}.alarm-time{margin:0;font-size:clamp(42px,12vw,58px);font-weight:300;line-height:.95;letter-spacing:-.045em}.alarm-details{margin:8px 0 0;color:#6d6d72;font-size:13px}.alarm-next{grid-column:1/-1;color:#8e8e93;font-size:12px}.switch{position:relative;width:51px;height:31px;margin-top:4px}.switch input{position:absolute;width:1px;height:1px;opacity:0}.switch span{position:relative;display:block;width:100%;height:100%;border-radius:999px;background:#d1d1d6;transition:background .2s}.switch span::after{content:"";position:absolute;top:50%;left:2px;width:27px;height:27px;margin:0;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2);transform:translateY(-50%);transition:transform .2s}.switch input:checked+span{background:#34c759}.switch input:checked+span::after{transform:translate(20px,-50%)}.empty-state{padding:72px 20px;color:#8e8e93;text-align:center}.editor-dialog{width:min(100%,680px);height:min(92vh,820px);max-width:none;max-height:none;margin:auto auto 0;padding:0;border:0;border-radius:22px 22px 0 0;background:#f2f2f7;color:inherit;overflow:hidden}.editor-dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}.editor-form{height:100%}.editor-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 16px;border-bottom:1px solid #dedee3;background:rgba(249,249,249,.94)}.editor-header h2{margin:0;font-size:17px}.text-button{padding:4px 0;border:0;background:none;color:#ff9500;text-align:left;cursor:pointer}.text-button:last-child{text-align:right}.text-button.strong{font-weight:650}.editor-body{height:calc(100% - 54px);padding:20px 16px calc(40px + env(safe-area-inset-bottom));overflow-y:auto}.time-field{display:block;padding:20px 0 28px;text-align:center}.time-field input{border:0;background:transparent;color:inherit;font-size:clamp(48px,16vw,72px);font-weight:300}.form-card,.form-section{margin-bottom:20px}.form-card{border-radius:12px;background:#fff;overflow:hidden}.form-row{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:50px;margin-left:16px;padding:8px 16px 8px 0;border-bottom:1px solid #e5e5ea}.form-row:last-of-type{border-bottom:0}.form-row input,.form-row select{min-width:0;border:0;background:transparent;color:#6d6d72;text-align:right}.form-row input[type=number]{width:78px}.form-section h3{margin:0 0 8px 16px;color:#6d6d72;font-size:13px;font-weight:500}.weekday-buttons{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.weekday-button{aspect-ratio:1;border:0;border-radius:50%;background:#fff;color:inherit;cursor:pointer}.weekday-button.selected{background:#ff9500;color:#fff}.field-help{margin:0;padding:0 16px 12px;color:#8e8e93;font-size:12px;line-height:1.4}.date-preview{margin:0;padding:4px 16px 4px 36px;border-radius:12px;background:#fff}.date-preview li{padding:9px 0}.validation-message{min-height:18px;margin:8px 16px 0;color:#ff3b30;font-size:13px}.delete-button{width:100%;padding:14px;border:0;border-radius:12px;background:#fff;color:#ff3b30;cursor:pointer}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}@media(min-width:700px){.editor-dialog{margin:auto;border-radius:22px}}@media(prefers-color-scheme:dark){:root,body{background:#000;color:#f5f5f7}.notice,.form-card,.date-preview,.delete-button,.weekday-button{background:#1c1c1e}.notice{box-shadow:none}.notice p,.alarm-details,.form-row input,.form-row select,.form-section h3{color:#a1a1a6}.alarm-card,.editor-header,.form-row{border-color:#38383a}.editor-dialog{background:#000}.editor-header{background:rgba(28,28,30,.94)}}
+.reminder-card{margin-top:12px;padding:15px 16px;border-radius:16px;background:#fff}.reminder-card strong{font-size:15px}.reminder-card p{margin:5px 0 12px;color:#6d6d72;font-size:12px}.action-row{display:flex;flex-wrap:wrap;gap:8px}.secondary-button{padding:8px 12px;border:0;border-radius:10px;background:#ededf2;color:#ff9500;font-size:13px;font-weight:600;cursor:pointer}.ringing-overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:30px;background:linear-gradient(160deg,#171719,#000);color:#fff;text-align:center}.ringing-content{width:min(100%,420px)}.ringing-time{margin:0;font-size:64px;font-weight:200;letter-spacing:-.04em}.ringing-content h2{margin:15px 0 5px;font-size:28px}.ringing-content>p:last-of-type{color:#a1a1a6}.ringing-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:48px}.ringing-actions button{padding:16px;border:0;border-radius:999px;background:#2c2c2e;color:#fff;font-weight:650}.ringing-actions button:last-child{background:#ff9500;color:#000}@media(prefers-color-scheme:dark){.reminder-card{background:#1c1c1e}.reminder-card p{color:#a1a1a6}.secondary-button{background:#2c2c2e}}
+.snooze-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:9px 10px;border-radius:10px;background:rgba(255,159,10,.11);color:#9a5a00;font-size:12px}.snooze-summary button{border:0;background:none;color:#ff9500;font-weight:650}.snooze-settings input[type=checkbox]{width:22px;height:22px;accent-color:#ff9500}
+@media(prefers-color-scheme:dark){.snooze-summary{background:rgba(255,159,10,.16);color:#ffc266}}
+.inline-action{width:100%;padding:13px 16px;border:0;border-top:1px solid #e5e5ea;background:transparent;color:#ff9500;text-align:left;font-weight:600;cursor:pointer}.sound-settings select{max-width:210px}.alarm-details{line-height:1.45}
+@media(prefers-color-scheme:dark){.inline-action{border-color:#38383a}}
+/* Refined alarm interface: card hierarchy, quick status, and calmer visual rhythm. */
+:root{--bg:#f5f6fa;--surface:rgba(255,255,255,.92);--surface-solid:#fff;--text:#111318;--muted:#747780;--line:rgba(17,19,24,.08);--accent:#ff9500;--accent-soft:#fff1dc;--green:#2ec866;--shadow:0 14px 38px rgba(36,42,55,.08)}
+body{background:radial-gradient(circle at 85% 0,rgba(255,184,76,.16),transparent 32%),linear-gradient(180deg,#fafafe 0,var(--bg) 45%);color:var(--text)}
+a{color:inherit;text-decoration:none}.app-shell{padding:calc(22px + env(safe-area-inset-top)) 18px calc(50px + env(safe-area-inset-bottom))}.top-bar{align-items:center;margin-bottom:20px}.top-bar h1{font-size:32px}.top-actions{display:flex;gap:10px;align-items:center}.help-button,.icon-button{display:grid;width:42px;height:42px;place-items:center;border:0;border-radius:14px;background:var(--surface-solid);color:var(--accent);box-shadow:0 7px 20px rgba(36,42,55,.08);font-size:20px;font-weight:700}.icon-button{background:var(--accent);color:#fff;font-size:27px}.next-overview{display:flex;align-items:center;justify-content:space-between;min-height:168px;padding:24px;border-radius:28px;background:linear-gradient(145deg,#20232b,#0e0f13);color:#fff;box-shadow:0 18px 42px rgba(14,15,19,.2)}.next-overview span{color:#b8bbc4;font-size:13px}.next-overview strong{display:block;margin:7px 0 4px;font-size:54px;font-weight:300;line-height:1;letter-spacing:-.05em}.next-overview p{margin:0;color:#d0d2d8;font-size:13px}.notice{display:flex;align-items:center;margin-top:14px;padding:12px 14px;border:1px solid rgba(255,149,0,.14);border-radius:14px;background:var(--accent-soft);box-shadow:none}.notice strong{display:none}.notice p{margin:0;color:#8a5916}.reminder-card{margin-top:14px;padding:17px;border:1px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:0 8px 24px rgba(36,42,55,.04);backdrop-filter:blur(20px)}.reminder-card>div:first-child>strong{font-size:16px}.reminder-card p{color:var(--muted)}.action-row{gap:9px}.secondary-button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface-solid);color:var(--accent);font-size:12px}.section-heading{display:flex;align-items:end;justify-content:space-between;margin:30px 4px 12px}.section-heading h2{margin:0;font-size:21px}.section-heading span{color:var(--muted);font-size:12px}.alarm-list{display:grid;gap:12px;margin-top:0}.alarm-card{display:grid;grid-template-columns:1fr auto;gap:12px 14px;padding:20px;border:1px solid var(--line);border-radius:22px;background:var(--surface);box-shadow:0 9px 28px rgba(36,42,55,.05);transition:transform .18s,opacity .18s,box-shadow .18s}.alarm-card:active{transform:scale(.985)}.alarm-card.disabled{opacity:.52}.alarm-card-copy{min-width:0}.alarm-time{font-size:52px}.alarm-details{margin:8px 0 9px;color:var(--text);font-size:15px;font-weight:650}.alarm-tags{display:flex;flex-wrap:wrap;gap:6px}.alarm-tags span{padding:5px 8px;border-radius:8px;background:#f0f1f5;color:#696c75;font-size:11px}.alarm-next{padding-top:12px;border-top:1px solid var(--line);color:var(--muted)}.switch{align-self:start}.empty-state{padding:58px 24px;border:1px dashed rgba(17,19,24,.14);border-radius:22px;background:rgba(255,255,255,.45)}.empty-icon{display:grid;width:54px;height:54px;margin:0 auto 15px;place-items:center;border-radius:18px;background:var(--accent-soft);color:var(--accent);font-size:29px}.empty-state p{margin-bottom:7px;color:var(--text);font-size:17px;font-weight:650}.editor-dialog{background:var(--bg)}.editor-header{background:rgba(255,255,255,.88);backdrop-filter:blur(24px)}.editor-body{padding-top:10px}.time-field{padding:24px 0 30px}.time-field input{font-size:68px;letter-spacing:-.045em}.form-card,.date-preview{border:1px solid var(--line);background:var(--surface-solid);box-shadow:0 7px 22px rgba(36,42,55,.035)}.form-card{border-radius:16px}.form-row{min-height:54px}.weekday-button{box-shadow:0 4px 12px rgba(36,42,55,.06)}.inline-action{border-color:var(--line)}.delete-button{border:1px solid rgba(255,59,48,.12);border-radius:16px}.ringing-overlay{overflow:hidden;background:radial-gradient(circle at 50% 36%,#343744 0,#14151a 42%,#050506 100%)}.ringing-content{position:relative;z-index:1}.ring-orbit{position:relative;width:170px;height:170px;margin:0 auto 28px}.ring-orbit span{position:absolute;inset:0;border:1px solid rgba(255,159,10,.28);border-radius:50%;animation:ring-wave 2.4s ease-out infinite}.ring-orbit span:nth-child(2){animation-delay:.8s}.ring-orbit span:nth-child(3){animation-delay:1.6s}.ring-orbit::after{content:"♪";position:absolute;inset:36px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#ffb23b,#ff8500);color:#111;font-size:42px;box-shadow:0 16px 48px rgba(255,149,0,.28)}.ringing-time{font-size:70px}.ringing-content h2{font-size:30px}.ringing-actions button{min-height:56px}.snooze-summary{color:#8a5916}@keyframes ring-wave{0%{transform:scale(.45);opacity:0}25%{opacity:1}100%{transform:scale(1.08);opacity:0}}
+@media(max-width:430px){.next-overview{min-height:150px;padding:21px}.next-overview strong{font-size:49px}.alarm-time{font-size:48px}.time-field input{font-size:60px}}
+@media(prefers-color-scheme:dark){:root{--bg:#07080a;--surface:rgba(27,28,33,.92);--surface-solid:#1b1c21;--text:#f5f5f7;--muted:#9b9da6;--line:rgba(255,255,255,.09);--accent-soft:rgba(255,149,0,.14);--shadow:none}body{background:radial-gradient(circle at 85% 0,rgba(255,149,0,.12),transparent 30%),#07080a}.help-button{background:#1b1c21}.notice{background:var(--accent-soft)}.notice p,.snooze-summary{color:#ffc56d}.alarm-tags span{background:#292a31;color:#bbbcc4}.empty-state{background:rgba(27,28,33,.45);border-color:rgba(255,255,255,.12)}.editor-header{background:rgba(20,21,25,.9)}}
+
+/* Concise iPhone guide shared by the in-app help buttons. */
+.guide-page{min-height:100vh}.guide-shell{width:min(100%,680px);margin:0 auto;padding:calc(22px + env(safe-area-inset-top)) 18px calc(46px + env(safe-area-inset-bottom))}.guide-header{display:flex;align-items:center;gap:14px;margin-bottom:20px}.guide-header h1{font-size:32px}.guide-back{display:grid;width:42px;height:42px;flex:0 0 auto;place-items:center;border-radius:14px;background:var(--surface-solid);color:var(--accent);box-shadow:0 7px 20px rgba(36,42,55,.08);font-size:34px;line-height:1}.guide-hero{display:flex;align-items:center;gap:16px;padding:20px;border-radius:24px;background:linear-gradient(145deg,#20232b,#0e0f13);color:#fff;box-shadow:0 18px 42px rgba(14,15,19,.18)}.guide-hero>span{display:grid;width:62px;height:62px;flex:0 0 auto;place-items:center;border-radius:20px;background:linear-gradient(145deg,#ffb33a,#ff8a00);font-size:31px}.guide-hero strong{font-size:18px}.guide-hero p{margin:6px 0 0;color:#d0d2d8;font-size:13px;line-height:1.5}.guide-card{margin-top:14px;padding:20px;border:1px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:0 8px 24px rgba(36,42,55,.04)}.guide-card h2{margin:0 0 13px;font-size:19px}.guide-card>p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}.guide-steps,.guide-list,.compact-list{margin:0;padding:0;list-style:none}.guide-steps li{display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-bottom:1px solid var(--line)}.guide-steps li:last-child{padding-bottom:0;border:0}.guide-steps li>span{display:grid;width:25px;height:25px;flex:0 0 auto;place-items:center;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:750}.guide-steps p{margin:2px 0 0;font-size:14px;line-height:1.55}.guide-tip{margin-top:15px;padding:13px 14px;border-radius:14px;background:var(--accent-soft)}.guide-tip strong{color:#8a5916;font-size:13px}.guide-tip p{margin:5px 0 0;color:#8a5916;font-size:13px;line-height:1.5}.guide-list li,.compact-list li{position:relative;padding:7px 0 7px 20px;color:var(--muted);font-size:14px;line-height:1.5}.guide-list li::before{content:"";position:absolute;left:2px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}.compact-list{counter-reset:guide-counter}.compact-list li{counter-increment:guide-counter}.compact-list li::before{content:counter(guide-counter) ".";position:absolute;left:0;color:var(--accent);font-weight:700}.guide-warning{margin-top:14px;padding:17px 18px;border:1px solid rgba(255,59,48,.14);border-radius:20px;background:rgba(255,59,48,.07)}.guide-warning strong{color:#d92d20;font-size:14px}.guide-warning p{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.55}.guide-primary{display:flex;align-items:center;justify-content:center;min-height:52px;margin-top:18px;border-radius:16px;background:var(--accent);color:#fff;font-weight:700;box-shadow:0 12px 28px rgba(255,149,0,.22)}
+@media(prefers-color-scheme:dark){.guide-back{background:#1b1c21}.guide-tip strong,.guide-tip p{color:#ffc56d}.guide-warning{background:rgba(255,69,58,.11)}.guide-warning strong{color:#ff6961}}
+
+/* App-like touch behavior and restrained orange focus feedback. */
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}body{-webkit-tap-highlight-color:transparent}button,a,input,select,.alarm-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}input,select{font-size:16px}.editor-dialog:focus,:where(button,a,input,select,.alarm-card):focus{outline:none}.form-row:focus-within{background:rgba(255,149,0,.055)}.form-row input:focus,.form-row select:focus{border-radius:5px;color:var(--text);box-shadow:inset 0 -2px 0 rgba(255,149,0,.72)}.time-field input:focus{border-radius:4px;box-shadow:0 3px 0 rgba(255,149,0,.72)}:where(button,a,.alarm-card):focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,149,0,.3)}.switch:focus-within span{box-shadow:0 0 0 3px rgba(255,149,0,.26)}
+
+/* Static alarm illustration: recognizable as artwork instead of a button. */
+.next-overview>div:first-child{min-width:0}.overview-illustration{width:104px;height:104px;flex:0 0 auto;pointer-events:none;filter:drop-shadow(0 13px 16px rgba(255,149,0,.2))}.overview-illustration svg{display:block;width:100%;height:100%;overflow:visible}.alarm-face{fill:url(#alarm-face)}.alarm-bells,.alarm-feet{fill:none;stroke:#ff9f0a;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.alarm-hands{fill:none;stroke:#fff;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}.alarm-ticks{fill:none;stroke:rgba(255,255,255,.72);stroke-width:3;stroke-linecap:round}.alarm-pin{fill:#fff}
+@media(max-width:430px){.overview-illustration{width:86px;height:86px}}
+@media(prefers-color-scheme:dark){.form-row:focus-within{background:rgba(255,149,0,.09)}}
+
+/* Time-aware greeting. */
+.greeting-row{display:flex;align-items:center;gap:9px}.greeting-row h1{font-size:32px}.greeting-symbol{display:grid;width:29px;height:29px;place-items:center;color:var(--accent)}.greeting-symbol svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.greeting-symbol[data-period=day] .greeting-moon,.greeting-symbol[data-period=night] .greeting-sun{display:none}.greeting-moon{fill:var(--accent-soft);stroke:var(--accent)}
+
+/* iPhone-style left swipe: the card reveals a direct delete control on its right. */
+.alarm-swipe-row{--swipe-x:0px;position:relative;overflow:hidden;border-radius:22px;background:transparent;box-shadow:0 9px 28px rgba(36,42,55,.05)}.swipe-delete{position:absolute;inset:0 0 0 auto;z-index:0;display:grid;width:82px;place-items:center;border:0;background:linear-gradient(145deg,#ff5148,#e52d24);color:#fff;cursor:pointer;opacity:0;transition:opacity .12s}.alarm-swipe-row.swiping .swipe-delete,.alarm-swipe-row.swiped .swipe-delete{opacity:1}.swipe-delete svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.alarm-swipe-row .alarm-card{position:relative;z-index:1;width:100%;margin:0;background:var(--surface-solid);touch-action:pan-y;transform:translateX(var(--swipe-x));box-shadow:none;transition:transform .2s ease,opacity .18s}.alarm-swipe-row .alarm-card:active{transform:translateX(var(--swipe-x))}.alarm-swipe-row .alarm-card.disabled{opacity:1}.alarm-swipe-row .alarm-card.disabled>*{opacity:.52}.alarm-swipe-row.swiped .swipe-delete{box-shadow:inset 1px 0 rgba(255,255,255,.2)}
+@media(prefers-color-scheme:dark){.brand-mark{background:rgba(255,149,0,.15)}}
+
+  </style>
 </head>
 <body>
   <main class="app-shell">
@@ -41,8 +74,8 @@
       <div class="action-row">
         <button id="enable-reminders" class="secondary-button" type="button">启用提醒</button>
         <button id="test-reminder" class="secondary-button" type="button">测试响铃</button>
-        <button id="share-app" class="secondary-button" type="button">分享</button>
         <a class="secondary-button" href="help.html">使用说明</a>
+        <button id="share-app" class="secondary-button" type="button">分享</button>
       </div>
     </section>
     <div class="section-heading"><h2>我的闹钟</h2><span id="alarm-count">0 个</span></div>
@@ -97,6 +130,733 @@
       <div class="ringing-actions"><button id="snooze-alarm" type="button">稍后提醒</button><button id="stop-alarm" type="button">停止</button></div>
     </div>
   </section>
-  <script defer src="app.bundle.js?v=12"></script>
+<script data-build="inline">
+/* Generated by build.mjs. Edit recurrence.js or app.js instead. */
+(() => {
+const WEEKDAYS = [
+  { id: 1, shortName: "一", name: "周一" },
+  { id: 2, shortName: "二", name: "周二" },
+  { id: 3, shortName: "三", name: "周三" },
+  { id: 4, shortName: "四", name: "周四" },
+  { id: 5, shortName: "五", name: "周五" },
+  { id: 6, shortName: "六", name: "周六" },
+  { id: 7, shortName: "日", name: "周日" }
+];
+
+const DAY_MS = 86_400_000;
+const MAX_DAYS = 10_000;
+
+/** Parses YYYY-MM-DD as a date in the browser's local time zone. */
+function parseLocalDate(value) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/** Formats a local date without converting it to UTC. */
+function toDateInputValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/** Combines a local calendar day and HH:mm value. */
+function combineDateAndTime(day, time) {
+  const [hour, minute] = time.split(":").map(Number);
+  const result = new Date(day);
+  result.setHours(hour, minute, 0, 0);
+  return result;
+}
+
+function localDayNumber(date) {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS;
+}
+
+function addCalendarDays(date, count) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + count);
+  return result;
+}
+
+function weekdayNumber(date) {
+  return date.getDay() === 0 ? 7 : date.getDay();
+}
+
+function validateDayCount(value, message) {
+  if (!Number.isInteger(value) || value < 1 || value > MAX_DAYS) {
+    throw new RangeError(message);
+  }
+}
+
+/** Returns the user-facing title for a repeat rule. */
+function repeatRuleTitle(rule) {
+  switch (rule.type) {
+    case "once": return "仅一次";
+    case "daily": return "每天";
+    case "weekdays": return "工作日";
+    case "weekends": return "周末";
+    case "selectedWeekdays": {
+      const selected = new Set(rule.weekdays ?? []);
+      return WEEKDAYS.filter(day => selected.has(day.id)).map(day => day.name).join("、");
+    }
+    case "intervalDays": return `每隔 ${rule.days} 天`;
+    case "workRest": return `连响 ${rule.workDays} 天，停 ${rule.restDays} 天`;
+    default: return "未知规则";
+  }
+}
+
+/**
+ * Calculates future alarm dates strictly after `after` using local calendar days,
+ * matching the iOS implementation across daylight-saving boundaries.
+ */
+function nextDates(alarm, after = new Date(), count = 4) {
+  if (count <= 0) return [];
+
+  const anchor = parseLocalDate(alarm.startDate);
+  const rule = alarm.repeatRule;
+
+  if (rule.type === "once") {
+    const candidate = combineDateAndTime(anchor, alarm.time);
+    return candidate > after ? [candidate] : [];
+  }
+
+  if (rule.type === "intervalDays") {
+    validateDayCount(rule.days, "间隔天数必须在 1 到 10,000 之间");
+    const elapsed = localDayNumber(after) - localDayNumber(anchor);
+    let cycle = Math.max(0, Math.floor(elapsed / rule.days));
+    const result = [];
+    while (result.length < count) {
+      const candidate = combineDateAndTime(addCalendarDays(anchor, cycle * rule.days), alarm.time);
+      if (candidate > after) result.push(candidate);
+      cycle += 1;
+    }
+    return result;
+  }
+
+  if (rule.type === "workRest") {
+    validateDayCount(rule.workDays, "连续响铃天数必须在 1 到 10,000 之间");
+    validateDayCount(rule.restDays, "停止响铃天数必须在 1 到 10,000 之间");
+    const cycleDays = rule.workDays + rule.restDays;
+    let offset = Math.max(0, localDayNumber(after) - localDayNumber(anchor));
+    const result = [];
+    while (result.length < count) {
+      if (offset % cycleDays < rule.workDays) {
+        const candidate = combineDateAndTime(addCalendarDays(anchor, offset), alarm.time);
+        if (candidate > after) result.push(candidate);
+      }
+      offset += 1;
+    }
+    return result;
+  }
+
+  let selected;
+  if (rule.type === "daily") selected = new Set(WEEKDAYS.map(day => day.id));
+  if (rule.type === "weekdays") selected = new Set([1, 2, 3, 4, 5]);
+  if (rule.type === "weekends") selected = new Set([6, 7]);
+  if (rule.type === "selectedWeekdays") selected = new Set(rule.weekdays ?? []);
+  if (!selected?.size) throw new RangeError("请至少选择一个星期");
+
+  const result = [];
+  let day = new Date(after.getFullYear(), after.getMonth(), after.getDate());
+  while (result.length < count) {
+    if (selected.has(weekdayNumber(day))) {
+      const candidate = combineDateAndTime(day, alarm.time);
+      if (candidate > after) result.push(candidate);
+    }
+    day = addCalendarDays(day, 1);
+  }
+  return result;
+}
+
+const STORAGE_KEY = "personalized-clock.alarms.v1";
+const SNOOZE_STORAGE_KEY = "personalized-clock.snoozes.v1";
+const SOUND_OPTIONS = {
+  dawn: {
+    title: "晨光",
+    description: "渐进和弦",
+    cycleMs: 4_200,
+    notes: [[523.25, 0, 1.15, .08, "sine"], [659.25, .42, 1.15, .075, "sine"], [783.99, .84, 1.25, .07, "sine"], [1046.5, 1.28, 1.45, .055, "sine"]]
+  },
+  spring: {
+    title: "清泉",
+    description: "清亮钟音",
+    cycleMs: 3_800,
+    notes: [[880, 0, .9, .075, "triangle"], [1174.66, .5, 1.05, .065, "sine"], [987.77, 1.02, 1.2, .06, "triangle"]]
+  },
+  breeze: {
+    title: "微风",
+    description: "柔和琶音",
+    cycleMs: 4_600,
+    notes: [[392, 0, 1.2, .065, "sine"], [493.88, .36, 1.2, .06, "sine"], [587.33, .72, 1.25, .058, "sine"], [739.99, 1.08, 1.35, .052, "sine"], [587.33, 1.5, 1.45, .045, "sine"]]
+  },
+  classic: {
+    title: "经典",
+    description: "清晰双音",
+    cycleMs: 2_800,
+    notes: [[659.25, 0, .5, .11, "sine"], [880, .24, .62, .1, "sine"]]
+  }
+};
+
+function soundOption(id) { return SOUND_OPTIONS[id] ?? SOUND_OPTIONS.dawn; }
+const $ = selector => document.querySelector(selector);
+const alarmList = $("#alarm-list");
+const alarmCount = $("#alarm-count");
+const greetingTitle = $("#greeting-title");
+const greetingSymbol = $("#greeting-symbol");
+const nextOverview = $(".next-overview");
+const nextAlarmTime = $("#next-alarm-time");
+const nextAlarmLabel = $("#next-alarm-label");
+const addButton = $("#add-alarm");
+const dialog = $("#alarm-editor");
+const form = $("#alarm-form");
+const cancelButton = $("#cancel-edit");
+const deleteButton = $("#delete-alarm");
+const timeInput = $("#alarm-time");
+const labelInput = $("#alarm-label");
+const repeatTypeInput = $("#repeat-type");
+const startDateInput = $("#start-date");
+const startDateRow = $("#start-date-row");
+const weekdayFields = $("#weekday-fields");
+const weekdayButtons = $("#weekday-buttons");
+const intervalFields = $("#interval-fields");
+const intervalDaysInput = $("#interval-days");
+const workRestFields = $("#work-rest-fields");
+const workDaysInput = $("#work-days");
+const restDaysInput = $("#rest-days");
+const datePreview = $("#date-preview");
+const validationMessage = $("#validation-message");
+const snoozeEnabledInput = $("#snooze-enabled");
+const snoozeMinutesInput = $("#snooze-minutes");
+const snoozeMinutesRow = $("#snooze-minutes-row");
+const alarmSoundInput = $("#alarm-sound");
+const previewSoundButton = $("#preview-sound");
+
+let alarms = loadAlarms();
+let pendingSnoozes = loadPendingSnoozes();
+let editingID = null;
+let editingWeekdays = new Set([1, 2, 3, 4, 5]);
+let swipeGesture;
+let openSwipeRow;
+let suppressCardClick = false;
+const SWIPE_REVEAL_PX = 82;
+
+function loadAlarms() {
+  try {
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!Array.isArray(value)) return [];
+    return value.map(alarm => ({
+      ...alarm,
+      sound: SOUND_OPTIONS[alarm.sound] ? alarm.sound : "dawn",
+      snoozeEnabled: alarm.snoozeEnabled !== false,
+      // Version 1 used a hidden nine-minute default, so migrate it to the visible five-minute default.
+      snoozeMinutes: alarm.snoozeMinutes === 9 ? 5 : Math.min(60, Math.max(1, Number(alarm.snoozeMinutes) || 5))
+    }));
+  } catch { return []; }
+}
+
+function saveAlarms() { localStorage.setItem(STORAGE_KEY, JSON.stringify(alarms)); }
+function loadPendingSnoozes() {
+  try {
+    const value = JSON.parse(localStorage.getItem(SNOOZE_STORAGE_KEY));
+    return Array.isArray(value) ? value.filter(item => item?.alarm && Number.isFinite(item.dueAt)) : [];
+  } catch { return []; }
+}
+function savePendingSnoozes() { localStorage.setItem(SNOOZE_STORAGE_KEY, JSON.stringify(pendingSnoozes)); }
+function createID() { return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`; }
+
+function defaultAlarm() {
+  const now = new Date(Date.now() + 5 * 60_000);
+  return {
+    id: createID(),
+    time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+    startDate: toDateInputValue(now),
+    label: "闹钟",
+    sound: "dawn",
+    repeatRule: { type: "once" },
+    isEnabled: true,
+    snoozeEnabled: true,
+    snoozeMinutes: 5
+  };
+}
+
+function escapeHTML(value) {
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+/** Updates the greeting and its day/night symbol from the device's local hour. */
+function updateGreeting(now = new Date()) {
+  const hour = now.getHours();
+  const isDay = hour >= 5 && hour < 18;
+  greetingTitle.textContent = hour >= 5 && hour < 12 ? "早上好" : hour >= 12 && hour < 18 ? "下午好" : "晚上好";
+  greetingSymbol.dataset.period = isDay ? "day" : "night";
+}
+
+function nextSummary(alarm) {
+  if (!alarm.isEnabled) return "已关闭";
+  try {
+    const next = nextDates(alarm, new Date(), 1)[0];
+    return next ? `下一次：${formatDate(next)}` : "所选时间已经过去";
+  } catch (error) { return error.message; }
+}
+
+function updateOverview() {
+  const enabledCount = alarms.filter(alarm => alarm.isEnabled).length;
+  alarmCount.textContent = `${enabledCount} 个已启用`;
+  const candidates = alarms.filter(alarm => alarm.isEnabled).flatMap(alarm => {
+    try {
+      const date = nextDates(alarm, new Date(), 1)[0];
+      return date ? [{ alarm, date, snoozed: false }] : [];
+    } catch { return []; }
+  });
+  const pending = pendingSnoozes[0];
+  if (pending) candidates.push({ alarm: pending.alarm, date: new Date(pending.dueAt), snoozed: true });
+  candidates.sort((left, right) => left.date - right.date);
+  const next = candidates[0];
+  if (!next) {
+    nextOverview.hidden = true;
+    nextAlarmTime.textContent = "";
+    nextAlarmLabel.textContent = "";
+    return;
+  }
+  nextOverview.hidden = false;
+  nextAlarmTime.textContent = next.date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  nextAlarmLabel.textContent = `${next.alarm.label || "闹钟"}${next.snoozed ? " · 稍后提醒" : ""} · ${formatDate(next.date)}`;
+}
+
+function render() {
+  updateOverview();
+  openSwipeRow = undefined;
+  swipeGesture = undefined;
+  if (!alarms.length) {
+    alarmList.innerHTML = `<div class="empty-state"><div class="empty-icon">＋</div><p>还没有闹钟</p><small>点击右上角加号，创建你的第一个自定义闹钟</small></div>`;
+    return;
+  }
+  alarmList.innerHTML = alarms.map(alarm => `
+    <div class="alarm-swipe-row" data-id="${escapeHTML(alarm.id)}">
+      <button class="swipe-delete" data-action="swipe-delete" type="button" aria-label="删除 ${escapeHTML(alarm.label || "闹钟")}" aria-hidden="true" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg>
+      </button>
+      <article class="alarm-card ${alarm.isEnabled ? "" : "disabled"}" data-id="${escapeHTML(alarm.id)}" tabindex="0">
+        <div class="alarm-card-copy">
+          <p class="alarm-time">${escapeHTML(alarm.time)}</p>
+          <p class="alarm-details">${escapeHTML(alarm.label?.trim() || "闹钟")}</p>
+          <div class="alarm-tags"><span>${escapeHTML(repeatRuleTitle(alarm.repeatRule))}</span><span>♪ ${escapeHTML(soundOption(alarm.sound).title)}</span>${alarm.snoozeEnabled ? `<span>稍后 ${alarm.snoozeMinutes ?? 5} 分钟</span>` : ""}</div>
+        </div>
+        <label class="switch" aria-label="启用 ${escapeHTML(alarm.label || "闹钟")}"><input data-action="toggle" type="checkbox" ${alarm.isEnabled ? "checked" : ""}><span></span></label>
+        <div class="alarm-next">${escapeHTML(nextSummary(alarm))}</div>
+      </article>
+    </div>`).join("");
+}
+
+function ruleFromForm() {
+  switch (repeatTypeInput.value) {
+    case "selectedWeekdays": return { type: "selectedWeekdays", weekdays: [...editingWeekdays].sort() };
+    case "intervalDays": return { type: "intervalDays", days: Number(intervalDaysInput.value) };
+    case "workRest": return { type: "workRest", workDays: Number(workDaysInput.value), restDays: Number(restDaysInput.value) };
+    default: return { type: repeatTypeInput.value };
+  }
+}
+
+function alarmFromForm() {
+  const previous = alarms.find(alarm => alarm.id === editingID);
+  return {
+    id: editingID ?? createID(), time: timeInput.value, startDate: startDateInput.value,
+    label: labelInput.value.trim() || "闹钟", sound: alarmSoundInput.value, repeatRule: ruleFromForm(),
+    isEnabled: previous?.isEnabled ?? true, snoozeEnabled: snoozeEnabledInput.checked,
+    snoozeMinutes: Number(snoozeMinutesInput.value)
+  };
+}
+
+function updateConditionalFields() {
+  const type = repeatTypeInput.value;
+  startDateRow.hidden = !["once", "intervalDays", "workRest"].includes(type);
+  weekdayFields.hidden = type !== "selectedWeekdays";
+  intervalFields.hidden = type !== "intervalDays";
+  workRestFields.hidden = type !== "workRest";
+}
+
+function renderWeekdayButtons() {
+  weekdayButtons.innerHTML = WEEKDAYS.map(day => `<button class="weekday-button ${editingWeekdays.has(day.id) ? "selected" : ""}" type="button" data-weekday="${day.id}" aria-pressed="${editingWeekdays.has(day.id)}">${day.shortName}</button>`).join("");
+}
+
+function updatePreview() {
+  try {
+    const upcoming = nextDates(alarmFromForm(), new Date(), 4);
+    if (!upcoming.length) throw new RangeError("所选时间已经过去");
+    datePreview.innerHTML = upcoming.map(date => `<li>${escapeHTML(formatDate(date))}</li>`).join("");
+    validationMessage.textContent = "";
+    return true;
+  } catch (error) {
+    datePreview.innerHTML = "";
+    validationMessage.textContent = error.message;
+    return false;
+  }
+}
+
+function openEditor(alarm = defaultAlarm()) {
+  editingID = alarms.some(item => item.id === alarm.id) ? alarm.id : null;
+  timeInput.value = alarm.time; startDateInput.value = alarm.startDate; labelInput.value = alarm.label;
+  repeatTypeInput.value = alarm.repeatRule.type;
+  alarmSoundInput.value = SOUND_OPTIONS[alarm.sound] ? alarm.sound : "dawn";
+  editingWeekdays = new Set(alarm.repeatRule.weekdays ?? [1, 2, 3, 4, 5]);
+  intervalDaysInput.value = alarm.repeatRule.days ?? 2;
+  workDaysInput.value = alarm.repeatRule.workDays ?? 2; restDaysInput.value = alarm.repeatRule.restDays ?? 2;
+  deleteButton.hidden = editingID === null;
+  updateConditionalFields(); renderWeekdayButtons(); updatePreview(); dialog.showModal();
+  dialog.focus({ preventScroll: true });
+}
+
+function closeEditor() { dialog.close(); editingID = null; }
+addButton.addEventListener("click", () => openEditor());
+cancelButton.addEventListener("click", closeEditor);
+
+/** Removes an alarm and any pending snooze that belongs to it. */
+function removeAlarm(alarmID) {
+  alarms = alarms.filter(alarm => alarm.id !== alarmID);
+  pendingSnoozes = pendingSnoozes.filter(item => item.alarm.id !== alarmID);
+  savePendingSnoozes();
+  saveAlarms();
+  render();
+}
+
+function setSwipeRowOpen(row, shouldOpen) {
+  if (!row) return;
+  if (shouldOpen && openSwipeRow && openSwipeRow !== row) setSwipeRowOpen(openSwipeRow, false);
+  row.classList.toggle("swiped", shouldOpen);
+  row.style.setProperty("--swipe-x", shouldOpen ? `-${SWIPE_REVEAL_PX}px` : "0px");
+  const deleteControl = row.querySelector(".swipe-delete");
+  deleteControl.tabIndex = shouldOpen ? 0 : -1;
+  deleteControl.setAttribute("aria-hidden", String(!shouldOpen));
+  if (shouldOpen) openSwipeRow = row; else if (openSwipeRow === row) openSwipeRow = undefined;
+}
+
+alarmList.addEventListener("pointerdown", event => {
+  const card = event.target.closest(".alarm-card");
+  if (!card || event.pointerType === "mouse" || event.target.closest(".switch, button, a, input, select")) return;
+  const row = card.closest(".alarm-swipe-row");
+  if (openSwipeRow && openSwipeRow !== row) setSwipeRowOpen(openSwipeRow, false);
+  swipeGesture = {
+    pointerID: event.pointerId, row, startX: event.clientX, startY: event.clientY,
+    baseX: row.classList.contains("swiped") ? -SWIPE_REVEAL_PX : 0,
+    currentX: row.classList.contains("swiped") ? -SWIPE_REVEAL_PX : 0,
+    horizontal: false, cancelled: false
+  };
+});
+
+alarmList.addEventListener("pointermove", event => {
+  if (!swipeGesture || event.pointerId !== swipeGesture.pointerID || swipeGesture.cancelled) return;
+  const deltaX = event.clientX - swipeGesture.startX;
+  const deltaY = event.clientY - swipeGesture.startY;
+  if (!swipeGesture.horizontal) {
+    if (Math.abs(deltaX) < 7 && Math.abs(deltaY) < 7) return;
+    if (Math.abs(deltaY) >= Math.abs(deltaX)) { swipeGesture.cancelled = true; return; }
+    swipeGesture.horizontal = true;
+    swipeGesture.row.classList.add("swiping");
+  }
+  event.preventDefault();
+  swipeGesture.currentX = Math.max(-SWIPE_REVEAL_PX, Math.min(0, swipeGesture.baseX + deltaX));
+  swipeGesture.row.style.setProperty("--swipe-x", `${swipeGesture.currentX}px`);
+}, { passive: false });
+
+function finishSwipe(event) {
+  if (!swipeGesture || event.pointerId !== swipeGesture.pointerID) return;
+  if (swipeGesture.horizontal) {
+    setSwipeRowOpen(swipeGesture.row, swipeGesture.currentX <= -SWIPE_REVEAL_PX * .55);
+    suppressCardClick = true;
+    // iOS dispatches a delayed synthetic click after touchend; keep the guard
+    // long enough that the revealed delete action does not immediately close.
+    setTimeout(() => { suppressCardClick = false; }, 400);
+  } else if (!swipeGesture.cancelled) {
+    setSwipeRowOpen(swipeGesture.row, swipeGesture.baseX > 0);
+  }
+  swipeGesture = undefined;
+}
+alarmList.addEventListener("pointerup", finishSwipe);
+alarmList.addEventListener("pointercancel", finishSwipe);
+
+alarmList.addEventListener("click", event => {
+  const deleteControl = event.target.closest('[data-action="swipe-delete"]');
+  if (deleteControl) {
+    removeAlarm(deleteControl.closest(".alarm-swipe-row").dataset.id);
+    return;
+  }
+  const card = event.target.closest(".alarm-card");
+  if (!card || suppressCardClick) return;
+  const row = card.closest(".alarm-swipe-row");
+  if (row.classList.contains("swiped")) { setSwipeRowOpen(row, false); return; }
+  const alarm = alarms.find(item => item.id === card.dataset.id);
+  if (!alarm) return;
+  if (event.target.matches('[data-action="toggle"]')) {
+    alarm.isEnabled = event.target.checked; saveAlarms(); render();
+    if (alarm.isEnabled) armPageReminders(false).catch(console.error);
+    return;
+  }
+  openEditor(alarm);
+});
+
+document.addEventListener("click", event => {
+  if (openSwipeRow && !event.target.closest(".alarm-swipe-row")) setSwipeRowOpen(openSwipeRow, false);
+});
+
+alarmList.addEventListener("keydown", event => {
+  if (!(["Enter", " "].includes(event.key)) || event.target.matches("input")) return;
+  event.preventDefault();
+  const alarm = alarms.find(item => item.id === event.target.dataset.id);
+  if (alarm) openEditor(alarm);
+});
+
+weekdayButtons.addEventListener("click", event => {
+  const value = Number(event.target.closest("[data-weekday]")?.dataset.weekday);
+  if (!value) return;
+  if (editingWeekdays.has(value)) editingWeekdays.delete(value); else editingWeekdays.add(value);
+  renderWeekdayButtons(); updatePreview();
+});
+
+repeatTypeInput.addEventListener("change", () => { updateConditionalFields(); updatePreview(); });
+[timeInput, startDateInput, intervalDaysInput, workDaysInput, restDaysInput, snoozeMinutesInput].forEach(input => input.addEventListener("input", updatePreview));
+snoozeEnabledInput.addEventListener("change", () => { snoozeMinutesRow.hidden = !snoozeEnabledInput.checked; });
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  if (!form.reportValidity() || !updatePreview()) return;
+  const updated = alarmFromForm();
+  const index = alarms.findIndex(alarm => alarm.id === editingID);
+  if (index >= 0) alarms[index] = updated; else alarms.push(updated);
+  saveAlarms(); render();
+  armPageReminders(false).catch(console.error);
+  closeEditor();
+});
+
+deleteButton.addEventListener("click", () => {
+  if (!editingID || !window.confirm("确定删除这个闹钟吗？")) return;
+  removeAlarm(editingID);
+  closeEditor();
+});
+
+updateGreeting();
+setInterval(updateGreeting, 60_000);
+render();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
+}
+
+const reminderStatus = $("#reminder-status");
+const enableRemindersButton = $("#enable-reminders");
+const testReminderButton = $("#test-reminder");
+const shareButton = $("#share-app");
+const ringingOverlay = $("#ringing-overlay");
+const ringingTime = $("#ringing-time");
+const ringingLabel = $("#ringing-label");
+const ringingSound = $("#ringing-sound");
+const stopAlarmButton = $("#stop-alarm");
+const snoozeAlarmButton = $("#snooze-alarm");
+const snoozeSummary = $("#snooze-summary");
+const snoozeStatus = $("#snooze-status");
+const cancelSnoozeButton = $("#cancel-snooze");
+let audioContext;
+let soundTimer;
+let activeRingingAlarm;
+let remindersEnabled = false;
+const firedOccurrences = new Set();
+
+function ensureAudio() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) throw new Error("当前浏览器不支持网页声音");
+  audioContext ??= new AudioContextClass();
+  return audioContext.resume();
+}
+
+/** Plays an original, short synthesized pattern without shipping copyrighted audio files. */
+function soundPulse(soundID = "dawn") {
+  if (!audioContext) return;
+  const pattern = soundOption(soundID);
+  const start = audioContext.currentTime + .02;
+  for (const [frequency, offset, duration, volume, type] of pattern.notes) {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, start + offset);
+    gain.gain.setValueAtTime(.0001, start + offset);
+    gain.gain.exponentialRampToValueAtTime(volume, start + offset + .035);
+    gain.gain.exponentialRampToValueAtTime(.0001, start + offset + duration);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start(start + offset);
+    oscillator.stop(start + offset + duration + .05);
+  }
+}
+
+async function showWebNotification(alarm) {
+  if (!("Notification" in window) || Notification.permission !== "granted" || !("serviceWorker" in navigator)) return;
+  const registration = await navigator.serviceWorker.ready;
+  await registration.showNotification(alarm.label || "闹钟", {
+    body: `${alarm.time} · ${repeatRuleTitle(alarm.repeatRule)} · ${soundOption(alarm.sound).title}`,
+    icon: "icon.svg",
+    tag: `alarm-${alarm.id}`,
+    renotify: true
+  });
+}
+
+async function triggerRinging(alarm) {
+  activeRingingAlarm = alarm;
+  ringingTime.textContent = alarm.time;
+  ringingLabel.textContent = alarm.label || "闹钟";
+  ringingSound.textContent = `${soundOption(alarm.sound).title} · ${soundOption(alarm.sound).description}`;
+  snoozeAlarmButton.hidden = alarm.snoozeEnabled === false;
+  snoozeAlarmButton.textContent = `${alarm.snoozeMinutes ?? 5} 分钟后提醒`;
+  ringingOverlay.hidden = false;
+  try {
+    await ensureAudio();
+    soundPulse(alarm.sound);
+    clearInterval(soundTimer);
+    soundTimer = setInterval(() => soundPulse(alarm.sound), soundOption(alarm.sound).cycleMs);
+  } catch (error) {
+    reminderStatus.textContent = error.message;
+  }
+  showWebNotification(alarm).catch(console.error);
+}
+
+function stopRinging() {
+  clearInterval(soundTimer);
+  soundTimer = undefined;
+  ringingOverlay.hidden = true;
+}
+
+/** Arms local audio from a user gesture; browsers require this again after a page reload. */
+async function armPageReminders(requestNotifications) {
+  remindersEnabled = true;
+  enableRemindersButton.textContent = "已启用";
+  enableRemindersButton.dataset.enabled = "true";
+  reminderStatus.textContent = "响铃已启用";
+  await ensureAudio();
+  let notificationsGranted = "Notification" in window && Notification.permission === "granted";
+  if (requestNotifications && "Notification" in window && Notification.permission === "default") {
+    notificationsGranted = await Notification.requestPermission() === "granted";
+  }
+  reminderStatus.textContent = notificationsGranted
+    ? "响铃和通知已启用"
+    : "响铃已启用";
+}
+
+function disableReminders() {
+  remindersEnabled = false;
+  enableRemindersButton.textContent = "启用提醒";
+  enableRemindersButton.dataset.enabled = "false";
+  reminderStatus.textContent = "提醒未启用";
+}
+
+async function enableReminders() {
+  if (remindersEnabled) {
+    disableReminders();
+    return;
+  }
+  try {
+    await armPageReminders(true);
+  } catch (error) {
+    disableReminders();
+    reminderStatus.textContent = error.message;
+  }
+}
+
+enableRemindersButton.addEventListener("click", enableReminders);
+previewSoundButton.addEventListener("click", async () => {
+  await armPageReminders(false).catch(() => {});
+  soundPulse(alarmSoundInput.value);
+  previewSoundButton.textContent = `正在试听：${soundOption(alarmSoundInput.value).title}`;
+  setTimeout(() => { previewSoundButton.textContent = "试听当前铃声"; }, 1800);
+});
+testReminderButton.addEventListener("click", async () => {
+  await armPageReminders(false).catch(() => {});
+  triggerRinging({ id: "test", time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }), label: "测试闹钟", sound: alarmSoundInput.value || "dawn", repeatRule: { type: "once" }, snoozeEnabled: true, snoozeMinutes: 5 });
+});
+stopAlarmButton.addEventListener("click", stopRinging);
+function renderSnoozeSummary() {
+  pendingSnoozes.sort((left, right) => left.dueAt - right.dueAt);
+  const pending = pendingSnoozes[0];
+  snoozeSummary.hidden = !pending;
+  updateOverview();
+  if (!pending) return;
+  const remainingSeconds = Math.max(0, Math.ceil((pending.dueAt - Date.now()) / 1000));
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = String(remainingSeconds % 60).padStart(2, "0");
+  const dueTime = new Date(pending.dueAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  snoozeStatus.textContent = `${pending.alarm.label || "闹钟"} · ${dueTime} 再响（${minutes}:${seconds}）`;
+}
+
+snoozeAlarmButton.addEventListener("click", () => {
+  const alarm = activeRingingAlarm;
+  stopRinging();
+  if (!alarm || alarm.snoozeEnabled === false) return;
+  const minutes = Math.min(60, Math.max(1, Number(alarm.snoozeMinutes) || 5));
+  pendingSnoozes = pendingSnoozes.filter(item => item.alarm.id !== alarm.id);
+  pendingSnoozes.push({ id: createID(), dueAt: Date.now() + minutes * 60_000, alarm: { ...alarm, snoozeMinutes: minutes } });
+  savePendingSnoozes();
+  renderSnoozeSummary();
+  reminderStatus.textContent = `已稍后提醒，将在 ${minutes} 分钟后再次响铃`;
+});
+
+cancelSnoozeButton.addEventListener("click", () => {
+  const pending = pendingSnoozes.sort((left, right) => left.dueAt - right.dueAt)[0];
+  if (!pending) return;
+  pendingSnoozes = pendingSnoozes.filter(item => item.id !== pending.id);
+  savePendingSnoozes();
+  renderSnoozeSummary();
+  reminderStatus.textContent = "已取消稍后提醒";
+});
+
+function checkDueAlarms() {
+  if (!remindersEnabled || !ringingOverlay.hidden) return;
+  const now = new Date();
+  const dueSnooze = pendingSnoozes.sort((left, right) => left.dueAt - right.dueAt)[0];
+  if (dueSnooze?.dueAt <= now.getTime()) {
+    pendingSnoozes = pendingSnoozes.filter(item => item.id !== dueSnooze.id);
+    savePendingSnoozes();
+    renderSnoozeSummary();
+    const dueTime = new Date(dueSnooze.dueAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+    triggerRinging({ ...dueSnooze.alarm, time: dueTime });
+    return;
+  }
+
+  for (const alarm of alarms.filter(item => item.isEnabled)) {
+    try {
+      const due = nextDates(alarm, new Date(now.getTime() - 65_000), 1)[0];
+      if (!due || due > now) continue;
+      const key = `${alarm.id}-${due.getTime()}`;
+      if (firedOccurrences.has(key)) continue;
+      firedOccurrences.add(key);
+      triggerRinging(alarm);
+      break;
+    } catch { /* Invalid alarms are already shown in the editor. */ }
+  }
+}
+
+renderSnoozeSummary();
+setInterval(renderSnoozeSummary, 1_000);
+setInterval(checkDueAlarms, 2_000);
+
+document.addEventListener("visibilitychange", () => {
+  if (remindersEnabled && document.hidden) reminderStatus.textContent = "页面在后台，响铃可能延迟";
+});
+
+shareButton.addEventListener("click", async () => {
+  // Share the stable app address without cache-busting query parameters.
+  const appUrl = new URL("./", location.href).href;
+  const shareData = { title: "个性闹钟", text: "试试支持自定义周期的个性闹钟", url: appUrl };
+  if (navigator.share) {
+    await navigator.share(shareData).catch(() => {});
+  } else {
+    await navigator.clipboard.writeText(appUrl);
+    shareButton.textContent = "链接已复制";
+    setTimeout(() => { shareButton.textContent = "分享"; }, 1600);
+  }
+});
+
+})();
+</script>
 </body>
 </html>

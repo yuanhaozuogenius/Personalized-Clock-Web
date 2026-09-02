@@ -37,11 +37,12 @@ node --check app.bundle.js
 
 - `recurrence.js`：纯日期与周期计算
 - `app.js`：DOM、本地存储、声音、提醒和 PWA 交互
-- `build.mjs`：合并源码生成 `app.bundle.js`
+- `build.mjs`：生成 `app.bundle.js`，并把 CSS 与脚本内联到发布首页
+- `index.template.html`：可维护的首页模板；`index.html` 是构建生成的自包含发布页
 - `sw.js`：离线文件缓存
 - `tests/ui_smoke.py`：Chrome 手机尺寸与真实触摸交互测试
 
-不要直接编辑 `app.bundle.js`。修改源码后运行 `npm run build` 并提交生成结果。
+不要直接编辑 `app.bundle.js` 或 `index.html`。修改源码、样式或首页结构后运行 `npm run build`，并提交两个生成结果。自包含首页可在 CSS 或脚本的后续请求缓慢时先完成显示，但无法保证 `github.io` 在所有中国大陆网络中可达。
 
 ## 本地数据
 

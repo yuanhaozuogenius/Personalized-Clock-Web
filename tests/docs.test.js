@@ -5,17 +5,27 @@ import { readFile } from "node:fs/promises";
 const read = path => readFile(new URL(path, import.meta.url), "utf8");
 
 test("published app contains the essential iPhone workflow and interaction guards", async () => {
-  const [index, help, guide, serviceWorker, app, styles, readme] = await Promise.all([
+  const [index, template, help, guide, serviceWorker, app, styles, readme, build] = await Promise.all([
     read("../index.html"),
+    read("../index.template.html"),
     read("../help.html"),
     read("../USER_GUIDE.md"),
     read("../sw.js"),
     read("../app.js"),
     read("../styles.css"),
-    read("../README.md")
+    read("../README.md"),
+    read("../build.mjs")
   ]);
 
   assert.match(index, /href="help\.html"/);
+  assert.match(index, /<style data-build="inline">/);
+  assert.match(index, /<script data-build="inline">/);
+  assert.doesNotMatch(index, /<link rel="stylesheet"/);
+  assert.doesNotMatch(index, /src="app\.bundle\.js/);
+  assert.match(template, /styles\.css\?v=13/);
+  assert.match(template, /app\.bundle\.js\?v=13/);
+  assert.match(template, /使用说明<\/a>\s*<button id="share-app"/);
+  assert.match(build, /Inline render-blocking assets/);
   assert.doesNotMatch(index, /id="install-app"/);
   assert.match(index, /maximum-scale=1, user-scalable=no/);
   assert.match(index, /class="next-overview"[^>]*hidden/);
@@ -47,7 +57,7 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(guide, /红色垃圾桶/);
   assert.match(guide, /再点一次“已启用”可关闭提醒/);
 
-  assert.match(serviceWorker, /personalized-clock-v12/);
+  assert.match(serviceWorker, /personalized-clock-v13/);
   assert.match(serviceWorker, /\.\/help\.html/);
   assert.match(app, /nextOverview\.hidden = true/);
   assert.match(app, /dialog\.focus\(\{ preventScroll: true \}\)/);
@@ -65,6 +75,8 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(app, /new URL\("\.\/", location\.href\)\.href/);
   assert.doesNotMatch(app, /beforeinstallprompt/);
   assert.match(styles, /touch-action:manipulation/);
+  assert.match(styles, /\.switch span::after\{[^}]*position:absolute;top:50%;left:2px/);
+  assert.match(styles, /transform:translate\(20px,-50%\)/);
   assert.match(styles, /\.form-row:focus-within/);
   assert.match(styles, /\.overview-illustration/);
   assert.match(styles, /\.alarm-swipe-row/);

@@ -31,8 +31,8 @@ jobs:
         run: npm test
       - name: Build browser bundle
         run: npm run build
-      - name: Check generated bundle
-        run: git diff --exit-code app.bundle.js
+      - name: Check generated files
+        run: git diff --exit-code app.bundle.js index.html
       - name: Check syntax
         run: |
           node --check app.js
