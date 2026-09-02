@@ -22,8 +22,8 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(index, /<script data-build="inline">/);
   assert.doesNotMatch(index, /<link rel="stylesheet"/);
   assert.doesNotMatch(index, /src="app\.bundle\.js/);
-  assert.match(template, /styles\.css\?v=14/);
-  assert.match(template, /app\.bundle\.js\?v=14/);
+  assert.match(template, /styles\.css\?v=15/);
+  assert.match(template, /app\.bundle\.js\?v=15/);
   assert.match(template, /使用说明<\/a>\s*<button id="share-app"/);
   assert.match(build, /Inline render-blocking assets/);
   assert.doesNotMatch(index, /id="install-app"/);
@@ -44,9 +44,10 @@ test("published app contains the essential iPhone workflow and interaction guard
 
   assert.match(help, /id="add-to-home"/);
   assert.match(help, /maximum-scale=1, user-scalable=no/);
-  assert.match(help, /工具栏的<strong>更多<\/strong>/);
-  assert.doesNotMatch(help, /三个点/);
+  assert.match(help, /class="inline-more-icon"[^>]*>•••<\/span>/);
+  assert.doesNotMatch(help, /<strong>更多<\/strong>/);
   assert.match(help, /再轻点<strong>共享<\/strong>/);
+  assert.doesNotMatch(help, /直接显示“共享”|作为 Web App 打开/);
   assert.match(help, /向下滑动/);
   assert.match(help, /启用提醒/);
   assert.match(help, /5 分钟后提醒/);
@@ -58,7 +59,7 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(guide, /红色垃圾桶/);
   assert.match(guide, /再点一次“已启用”可关闭提醒/);
 
-  assert.match(serviceWorker, /personalized-clock-v14/);
+  assert.match(serviceWorker, /personalized-clock-v15/);
   assert.match(serviceWorker, /\.\/help\.html/);
   assert.match(app, /nextOverview\.hidden = true/);
   assert.match(app, /dialog\.focus\(\{ preventScroll: true \}\)/);
@@ -91,6 +92,7 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(styles, /\.swipe-delete/);
   assert.match(styles, /\.calendar-grid\{touch-action:none/);
   assert.match(styles, /\.custom-background/);
+  assert.match(styles, /\.inline-more-icon/);
   assert.match(readme, /向左滑动删除/);
   assert.match(readme, /本地照片背景/);
 });
