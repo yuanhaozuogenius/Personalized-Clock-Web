@@ -4,6 +4,7 @@
 
 - 在线地址：https://yuanhaozuogenius.github.io/Personalized-Clock-Web/
 - iPhone 用户说明：[USER_GUIDE.md](USER_GUIDE.md)
+- 历史更新日志：[CHANGELOG.md](CHANGELOG.md)
 
 ## 主要能力
 
