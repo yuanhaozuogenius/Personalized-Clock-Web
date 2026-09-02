@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="styles.css?v=17">
 </head>
 <body>
   <div id="custom-background" class="custom-background" aria-hidden="true"></div>
@@ -44,6 +44,7 @@
         <button id="test-reminder" class="secondary-button" type="button">测试响铃</button>
         <button id="open-personalization" class="secondary-button" type="button">壁纸设置</button>
         <a class="secondary-button" href="help.html">使用说明</a>
+        <a class="secondary-button" href="changelog.html">更新日志</a>
         <button id="share-app" class="secondary-button" type="button">分享</button>
       </div>
     </section>
@@ -122,7 +123,15 @@
         <div class="personalization-preview"><div id="background-preview"></div><span>壁纸预览</span></div>
         <label class="file-picker personalization-file">选择壁纸照片<input id="background-file" type="file" accept="image/*"></label>
         <label class="form-row opacity-row"><span>壁纸显示强度</span><input id="background-opacity" type="range" min="10" max="100" value="65"><output id="background-opacity-value">65%</output></label>
-        <label class="form-row"><span>显示方式</span><select id="background-fit"><option value="cover">铺满屏幕</option><option value="contain">完整显示</option></select></label>
+        <div class="form-row wallpaper-fit-row">
+          <span>显示方式</span>
+          <button id="background-fit-trigger" class="wallpaper-fit-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="background-fit-menu"><span id="background-fit-label">铺满屏幕</span><svg class="theme-chevron" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1h10L6 7Z"/></svg></button>
+          <select id="background-fit" hidden aria-hidden="true" tabindex="-1"><option value="cover">铺满屏幕</option><option value="contain">完整显示</option></select>
+        </div>
+        <div id="background-fit-menu" class="wallpaper-fit-menu" role="listbox" aria-label="壁纸显示方式" hidden>
+          <button class="wallpaper-fit-option" type="button" role="option" data-fit="cover" aria-selected="true">铺满屏幕</button>
+          <button class="wallpaper-fit-option" type="button" role="option" data-fit="contain" aria-selected="false">完整显示</button>
+        </div>
         <p class="field-help wallpaper-fit-help">两种方式都保持原图比例：铺满屏幕会裁掉部分边缘，完整显示可能留边。</p>
         <button id="remove-background" class="inline-action danger-action" type="button">移除壁纸照片</button>
       </section>
@@ -135,6 +144,6 @@
       <div class="ringing-actions"><button id="snooze-alarm" type="button">稍后提醒</button><button id="stop-alarm" type="button">停止</button></div>
     </div>
   </section>
-  <script defer src="app.bundle.js?v=16"></script>
+  <script defer src="app.bundle.js?v=17"></script>
 </body>
 </html>

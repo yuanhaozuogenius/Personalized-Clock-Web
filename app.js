@@ -122,6 +122,10 @@ const backgroundFileInput = $("#background-file");
 const backgroundOpacityInput = $("#background-opacity");
 const backgroundOpacityValue = $("#background-opacity-value");
 const backgroundFitInput = $("#background-fit");
+const backgroundFitTrigger = $("#background-fit-trigger");
+const backgroundFitLabel = $("#background-fit-label");
+const backgroundFitMenu = $("#background-fit-menu");
+const backgroundFitOptions = [...document.querySelectorAll(".wallpaper-fit-option")];
 const backgroundPreview = $("#background-preview");
 const backgroundStatus = $("#background-status");
 const removeBackgroundButton = $("#remove-background");
@@ -189,11 +193,23 @@ function savePersonalization(value) {
   localStorage.setItem(PERSONALIZATION_KEY, JSON.stringify({ ...value, version: 2 }));
 }
 
+function setBackgroundFitMenuOpen(isOpen) {
+  backgroundFitMenu.hidden = !isOpen;
+  backgroundFitTrigger.setAttribute("aria-expanded", String(isOpen));
+}
+
+function syncBackgroundFitControl(fit) {
+  const normalizedFit = fit === "contain" ? "contain" : "cover";
+  backgroundFitLabel.textContent = normalizedFit === "contain" ? "完整显示" : "铺满屏幕";
+  backgroundFitOptions.forEach(option => option.setAttribute("aria-selected", String(option.dataset.fit === normalizedFit)));
+}
+
 async function applyPersonalization() {
   const settings = loadPersonalization();
   backgroundOpacityInput.value = settings.opacity;
   backgroundOpacityValue.textContent = `${settings.opacity}%`;
   backgroundFitInput.value = settings.fit;
+  syncBackgroundFitControl(settings.fit);
   removeBackgroundButton.disabled = !settings.assetID;
   customBackground.style.opacity = String(settings.opacity / 100);
   backgroundPreview.style.opacity = String(settings.opacity / 100);
@@ -642,7 +658,10 @@ openPersonalizationButton.addEventListener("click", () => {
   personalizationDialog.showModal();
   personalizationDialog.focus({ preventScroll: true });
 });
-closePersonalizationButton.addEventListener("click", () => personalizationDialog.close());
+closePersonalizationButton.addEventListener("click", () => {
+  setBackgroundFitMenuOpen(false);
+  personalizationDialog.close();
+});
 backgroundOpacityInput.addEventListener("input", () => {
   const opacity = Number(backgroundOpacityInput.value);
   backgroundOpacityValue.textContent = `${opacity}%`;
@@ -653,9 +672,28 @@ backgroundOpacityInput.addEventListener("input", () => {
 });
 backgroundFitInput.addEventListener("change", () => {
   const fit = backgroundFitInput.value === "contain" ? "contain" : "cover";
+  syncBackgroundFitControl(fit);
   customBackground.style.backgroundSize = fit;
   backgroundPreview.style.backgroundSize = fit;
   savePersonalization({ ...loadPersonalization(), fit });
+});
+backgroundFitTrigger.addEventListener("click", () => {
+  setBackgroundFitMenuOpen(backgroundFitTrigger.getAttribute("aria-expanded") !== "true");
+});
+backgroundFitOptions.forEach(option => option.addEventListener("click", () => {
+  backgroundFitInput.value = option.dataset.fit;
+  backgroundFitInput.dispatchEvent(new Event("change", { bubbles: true }));
+  setBackgroundFitMenuOpen(false);
+  backgroundFitTrigger.focus();
+}));
+personalizationDialog.addEventListener("click", event => {
+  if (!event.target.closest(".wallpaper-fit-row, .wallpaper-fit-menu")) setBackgroundFitMenuOpen(false);
+});
+personalizationDialog.addEventListener("keydown", event => {
+  if (event.key !== "Escape" || backgroundFitMenu.hidden) return;
+  event.preventDefault();
+  setBackgroundFitMenuOpen(false);
+  backgroundFitTrigger.focus();
 });
 backgroundFileInput.addEventListener("change", async () => {
   const file = backgroundFileInput.files?.[0];
