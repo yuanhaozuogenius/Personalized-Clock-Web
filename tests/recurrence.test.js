@@ -48,6 +48,23 @@ test("指定星期不能为空", () => {
   );
 });
 
+test("指定日期会去重、排序并跳过已经过去的时刻", () => {
+  const result = nextDates(
+    alarm({ type: "specificDates", dates: ["2026-09-05", "2026-09-03", "2026-09-05", "invalid"] }),
+    new Date(2026, 8, 3, 8),
+    4
+  );
+  assert.deepEqual(result.map(toDateInputValue), ["2026-09-05"]);
+  assert.equal(repeatRuleTitle({ type: "specificDates", dates: ["2026-09-03", "2026-09-05"] }), "指定 2 天");
+});
+
+test("指定日期不能为空", () => {
+  assert.throws(
+    () => nextDates(alarm({ type: "specificDates", dates: [] }), new Date(2026, 8, 2), 1),
+    /至少选择一个日期/
+  );
+});
+
 test("间隔限制保持为 1 至 10000 天", () => {
   assert.throws(
     () => nextDates(alarm({ type: "intervalDays", days: 10_001 }), new Date(), 1),

@@ -64,6 +64,7 @@ export function repeatRuleTitle(rule) {
       const selected = new Set(rule.weekdays ?? []);
       return WEEKDAYS.filter(day => selected.has(day.id)).map(day => day.name).join("、");
     }
+    case "specificDates": return `指定 ${rule.dates?.length ?? 0} 天`;
     case "intervalDays": return `每隔 ${rule.days} 天`;
     case "workRest": return `连响 ${rule.workDays} 天，停 ${rule.restDays} 天`;
     default: return "未知规则";
@@ -83,6 +84,17 @@ export function nextDates(alarm, after = new Date(), count = 4) {
   if (rule.type === "once") {
     const candidate = combineDateAndTime(anchor, alarm.time);
     return candidate > after ? [candidate] : [];
+  }
+
+  if (rule.type === "specificDates") {
+    const dates = [...new Set(rule.dates ?? [])]
+      .filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value))
+      .sort();
+    if (!dates.length) throw new RangeError("请至少选择一个日期");
+    return dates
+      .map(value => combineDateAndTime(parseLocalDate(value), alarm.time))
+      .filter(candidate => candidate > after)
+      .slice(0, count);
   }
 
   if (rule.type === "intervalDays") {

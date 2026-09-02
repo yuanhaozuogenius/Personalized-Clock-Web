@@ -155,6 +155,11 @@ def main():
 
     fill_alarm(cdp, "测试间隔", "intervalDays", "document.querySelector('#interval-days').value='3'; document.querySelector('#interval-days').dispatchEvent(new Event('input',{bubbles:true}));")
     assert cdp.evaluate("document.querySelector('.next-overview').hidden === false")
+    cdp.evaluate("document.querySelector('.switch span').click()")
+    wait_for(cdp, "JSON.parse(localStorage.getItem('personalized-clock.alarms.v1'))[0].isEnabled === false")
+    assert cdp.evaluate("document.querySelector('#alarm-editor').open === false")
+    cdp.evaluate("document.querySelector('.switch span').click()")
+    wait_for(cdp, "JSON.parse(localStorage.getItem('personalized-clock.alarms.v1'))[0].isEnabled === true")
     assert cdp.evaluate("document.querySelector('.alarm-card').textContent.includes('每隔 3 天')")
     assert cdp.evaluate("(() => { const track=document.querySelector('.switch span'); const thumb=getComputedStyle(track,'::after'); return thumb.position==='absolute' && Math.abs(parseFloat(thumb.top)-track.clientHeight/2)<0.1 && thumb.marginTop==='0px' && thumb.transform.includes('-13.5'); })()")
     assert cdp.evaluate("document.querySelector('#enable-reminders').dataset.enabled === 'true'")
@@ -163,6 +168,38 @@ def main():
     assert cdp.evaluate("document.querySelector('#reminder-status').textContent === '提醒未启用'")
     cdp.evaluate("document.querySelector('#enable-reminders').click()")
     wait_for(cdp, "document.querySelector('#enable-reminders').dataset.enabled === 'true' && document.querySelector('#enable-reminders').textContent === '已启用'")
+
+    cdp.evaluate("""
+      (() => {
+        document.querySelector('.alarm-card').click();
+        const repeat=document.querySelector('#repeat-type'); repeat.value='specificDates'; repeat.dispatchEvent(new Event('change',{bubbles:true}));
+        document.querySelector('#open-date-picker').click();
+        document.querySelector('#next-month').click();
+        const days=[...document.querySelectorAll('.calendar-day')].slice(0,3);
+        const point=el=>{const r=el.getBoundingClientRect();return {clientX:r.left+r.width/2,clientY:r.top+r.height/2}};
+        days[0].dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:71,...point(days[0])}));
+        document.querySelector('#calendar-grid').dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:71,...point(days[2])}));
+        document.querySelector('#calendar-grid').dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:71,...point(days[2])}));
+        document.querySelector('#confirm-date-picker').click();
+        document.querySelector('#alarm-form').requestSubmit();
+      })()
+    """)
+    wait_for(cdp, "JSON.parse(localStorage.getItem('personalized-clock.alarms.v1'))[0].repeatRule.dates?.length === 3")
+    assert cdp.evaluate("document.querySelector('.alarm-card').textContent.includes('指定 3 天')")
+
+    cdp.evaluate("""
+      (() => {
+        document.querySelector('#open-personalization').click();
+        const transfer=new DataTransfer();
+        transfer.items.add(new File(['<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="orange"/></svg>'],'background.svg',{type:'image/svg+xml'}));
+        const input=document.querySelector('#background-file'); input.files=transfer.files; input.dispatchEvent(new Event('change',{bubbles:true}));
+      })()
+    """)
+    wait_for(cdp, "document.body.classList.contains('has-custom-background')")
+    cdp.evaluate("const input=document.querySelector('#background-opacity'); input.value='30'; input.dispatchEvent(new Event('input',{bubbles:true}));")
+    assert cdp.evaluate("JSON.parse(localStorage.getItem('personalized-clock.personalization.v1')).opacity === 30")
+    cdp.evaluate("document.querySelector('#remove-background').click(); document.querySelector('#close-personalization').click()")
+    wait_for(cdp, "!document.body.classList.contains('has-custom-background')")
 
     fill_alarm(cdp, "滑动删除", "daily")
     assert cdp.evaluate("document.querySelectorAll('.alarm-swipe-row').length === 2")
@@ -184,12 +221,14 @@ def main():
     cdp.evaluate("""
       (() => {
         document.querySelector('.alarm-card').click();
-        document.querySelector('#alarm-sound').value='breeze';
-        document.querySelector('#preview-sound').click();
-        document.querySelector('#alarm-form').requestSubmit();
+        const sound=document.querySelector('#alarm-sound'); sound.value='custom'; sound.dispatchEvent(new Event('change',{bubbles:true}));
+        const transfer=new DataTransfer(); transfer.items.add(new File([new Uint8Array(64)],'tone.wav',{type:'audio/wav'}));
+        const input=document.querySelector('#custom-sound-file'); input.files=transfer.files; input.dispatchEvent(new Event('change',{bubbles:true}));
       })()
     """)
-    wait_for(cdp, "JSON.parse(localStorage.getItem('personalized-clock.alarms.v1'))[0].sound === 'breeze'")
+    wait_for(cdp, "document.querySelector('#custom-sound-status').textContent.includes('tone.wav')")
+    cdp.evaluate("document.querySelector('#alarm-form').requestSubmit()")
+    wait_for(cdp, "JSON.parse(localStorage.getItem('personalized-clock.alarms.v1'))[0].sound === 'custom'")
 
     cdp.evaluate("document.querySelector('.alarm-card').click()")
     wait_for(cdp, "document.querySelector('#alarm-editor').open")

@@ -22,8 +22,8 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(index, /<script data-build="inline">/);
   assert.doesNotMatch(index, /<link rel="stylesheet"/);
   assert.doesNotMatch(index, /src="app\.bundle\.js/);
-  assert.match(template, /styles\.css\?v=13/);
-  assert.match(template, /app\.bundle\.js\?v=13/);
+  assert.match(template, /styles\.css\?v=14/);
+  assert.match(template, /app\.bundle\.js\?v=14/);
   assert.match(template, /使用说明<\/a>\s*<button id="share-app"/);
   assert.match(build, /Inline render-blocking assets/);
   assert.doesNotMatch(index, /id="install-app"/);
@@ -44,8 +44,9 @@ test("published app contains the essential iPhone workflow and interaction guard
 
   assert.match(help, /id="add-to-home"/);
   assert.match(help, /maximum-scale=1, user-scalable=no/);
-  assert.match(help, /右下角的<strong>三个点<\/strong>/);
-  assert.match(help, /再点<strong>共享<\/strong>/);
+  assert.match(help, /工具栏的<strong>更多<\/strong>/);
+  assert.doesNotMatch(help, /三个点/);
+  assert.match(help, /再轻点<strong>共享<\/strong>/);
   assert.match(help, /向下滑动/);
   assert.match(help, /启用提醒/);
   assert.match(help, /5 分钟后提醒/);
@@ -57,7 +58,7 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(guide, /红色垃圾桶/);
   assert.match(guide, /再点一次“已启用”可关闭提醒/);
 
-  assert.match(serviceWorker, /personalized-clock-v13/);
+  assert.match(serviceWorker, /personalized-clock-v14/);
   assert.match(serviceWorker, /\.\/help\.html/);
   assert.match(app, /nextOverview\.hidden = true/);
   assert.match(app, /dialog\.focus\(\{ preventScroll: true \}\)/);
@@ -66,6 +67,13 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(app, /: "晚上好"/);
   assert.match(app, /data-action="swipe-delete"/);
   assert.match(app, /function removeAlarm\(alarmID\)/);
+  assert.match(app, /alarmList\.addEventListener\("change"/);
+  assert.match(app, /event\.target\.closest\("\.switch"\)/);
+  assert.match(app, /function openDatePicker\(\)/);
+  assert.match(app, /calendarGrid\.addEventListener\("pointermove"/);
+  assert.match(app, /calendarGesture\.lastValue/);
+  assert.match(app, /本地音频不可用 · 已改用晨光/);
+  assert.match(app, /indexedDB\.open\(ASSET_DB_NAME, 1\)/);
   assert.match(app, /SWIPE_REVEAL_PX \* \.55/);
   assert.match(app, /suppressCardClick = false; }, 400/);
   assert.match(app, /function disableReminders\(\)/);
@@ -81,5 +89,8 @@ test("published app contains the essential iPhone workflow and interaction guard
   assert.match(styles, /\.overview-illustration/);
   assert.match(styles, /\.alarm-swipe-row/);
   assert.match(styles, /\.swipe-delete/);
+  assert.match(styles, /\.calendar-grid\{touch-action:none/);
+  assert.match(styles, /\.custom-background/);
   assert.match(readme, /向左滑动删除/);
+  assert.match(readme, /本地照片背景/);
 });
