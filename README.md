@@ -45,6 +45,15 @@ node --check app.bundle.js
 - `sw.js`：离线文件缓存
 - `tests/ui_smoke.py`：Chrome 手机尺寸与真实触摸交互测试
 - `tests/audio_clip_ui.py`：本地音频解码、片段选择、试听、保存和铃声指南的定向手机测试
+- `tests/run_cdp_test.py`：以独立临时 Chrome 配置目录启动并清理上述测试，避免含空格的项目路径被误解析
+
+浏览器交互测试请先在一个终端启动本地服务器，再在另一个终端使用统一启动器；不要自行拼接 Chrome 的 `--user-data-dir` 参数：
+
+```powershell
+python -m http.server 4173
+python tests/run_cdp_test.py ui_smoke --url http://127.0.0.1:4173/ --screenshot "$env:TEMP\personal-clock-ui.png"
+python tests/run_cdp_test.py audio_clip --url http://127.0.0.1:4173/index.html --screenshot "$env:TEMP\personal-clock-audio.png"
+```
 - 本地铃声采用浏览器 Web Audio 解码，实际兼容性以当前 Safari 能否读取为准；不支持受保护的流媒体歌曲文件
 
 不要直接编辑 `app.bundle.js` 或 `index.html`。修改源码、样式或首页结构后运行 `npm run build`，并提交两个生成结果。自包含首页可在 CSS 或脚本的后续请求缓慢时先完成显示，但无法保证 `github.io` 在所有中国大陆网络中可达。

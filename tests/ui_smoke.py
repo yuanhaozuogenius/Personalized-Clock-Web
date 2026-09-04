@@ -245,7 +245,7 @@ def main():
       (() => {
         document.querySelector('.alarm-card').click();
         const sound=document.querySelector('#alarm-sound'); sound.value='custom'; sound.dispatchEvent(new Event('change',{bubbles:true}));
-        const transfer=new DataTransfer(); transfer.items.add(new File([new Uint8Array(64)],'tone.wav',{type:'audio/wav'}));
+        const sampleRate=8000, samples=sampleRate, buffer=new ArrayBuffer(44+samples*2), view=new DataView(buffer); const text=(offset,value)=>[...value].forEach((char,index)=>view.setUint8(offset+index,char.charCodeAt(0))); text(0,'RIFF'); view.setUint32(4,36+samples*2,true); text(8,'WAVE'); text(12,'fmt '); view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,1,true); view.setUint32(24,sampleRate,true); view.setUint32(28,sampleRate*2,true); view.setUint16(32,2,true); view.setUint16(34,16,true); text(36,'data'); view.setUint32(40,samples*2,true); const transfer=new DataTransfer(); transfer.items.add(new File([buffer],'tone.wav',{type:'audio/wav'}));
         const input=document.querySelector('#custom-sound-file'); input.files=transfer.files; input.dispatchEvent(new Event('change',{bubbles:true}));
       })()
     """)
